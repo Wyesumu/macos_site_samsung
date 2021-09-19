@@ -1,0 +1,51 @@
+{% extends 'account.html' %}
+
+
+{%block bread%}
+  <ul class="breadcrumb">
+        <li><a href="/"><i class="fa fa-home"></i></a></li>
+        <li><a href="/my-account">Личный кабинет</a></li>
+        <li><a href="/edit-account">Редактировать информацию</a></li>
+      </ul>
+{%endblock%}
+{%block account_content%}
+<div id="content" class="col-sm-9">
+    <h1>Учетная запись</h1>
+    <div class="simple-content">
+        <form action="" method="post" enctype="multipart/form-data" id="simplepage_form">
+            <div class="simpleregister" id="simpleedit">
+                <div class="simpleregister-block-content">
+                    <fieldset class="form-horizontal">
+                        <div class="form-group required row-edit_email">
+    <label class="control-label col-sm-2" for="edit_email">Email</label>
+    <div class="col-sm-10">
+              <input class="form-control" type="email" name="email" id="edit_email" value="{{cabinet.user().email}}" placeholder="" data-reload-payment-form="true">
+                    <div class="simplecheckout-rule-group" data-for="edit_email">
+                      <div style="display:none;" data-for="edit_email" data-rule="api" class="simplecheckout-error-text simplecheckout-rule" data-method="checkEmailForUniqueness" data-filter="edit_register" data-filter-value="1" data-required="true">Адрес уже зарегистрирован!</div>
+                      <div style="display:none;" data-for="edit_email" data-rule="regexp" class="simplecheckout-error-text simplecheckout-rule" data-regexp=".+@.+" data-required="true">Некорректный адрес электронной почты!</div>
+                  </div>
+                </div>
+ </div>                                  <div class="form-group required row-edit_firstname">
+    <label class="control-label col-sm-2" for="edit_firstname">Фамилия Имя Отчество </label>
+    <div class="col-sm-10">
+              <input class="form-control" type="text" name="firstname" id="edit_firstname" value="{{cabinet.user().name}}" placeholder="" data-reload-payment-form="true">
+                    <div class="simplecheckout-rule-group" data-for="edit_firstname">
+                      <div style="display:none;" data-for="edit_firstname" data-rule="byLength" class="simplecheckout-error-text simplecheckout-rule" data-length-min="1" data-length-max="40" data-required="true">Имя должно быть от 1 до 40 символов!</div>
+                  </div>
+                </div>
+ </div>                                  <div class="form-group required row-edit_telephone">
+    <label class="control-label col-sm-2" for="edit_telephone">Телефон</label>
+    <div class="col-sm-10">
+              <input class="form-control" type="tel" name="telephone" id="edit_telephone" value="{{cabinet.user().phone}}" placeholder="" data-mask="+38 (999) 999-99-99" data-reload-payment-form="true">
+                      </div>
+ </div>                                  </fieldset>                            </div>
+            <div class="simpleregister-button-block buttons">
+                <div class="simpleregister-button-right">
+                    <button class="button btn-primary button_oc btn" type="submit" id="simpleregister_button_confirm"><span>Продолжить</span></buton>
+                </div>
+            </div>
+        </div>
+            </form>
+</div>
+      </div>
+      {%endblock%}

@@ -1,0 +1,82 @@
+{% extends 'account.html' %}
+
+  {%block bread%}
+  <ul class="breadcrumb">
+        <li><a href="/"><i class="fa fa-home"></i></a></li>
+        <li><a href="/my-account">Личный кабинет</a></li>
+        <li><a href="/change-address">Редактировать адрес</a></li>
+      </ul>
+  {%endblock%}
+{%block account_content%}
+
+
+    <div id="content" class="col-sm-9">
+      <h1>Мой адрес</h1>
+      <form action="" method="post" enctype="multipart/form-data" class="form-horizontal">
+        <fieldset>
+          <div class="form-group required">
+            <label class="control-label col-sm-2" for="customer_firstname">Фамилия Имя Отчество </label>
+            <div class="col-sm-10">
+              <input class="form-control" type="text" name="firstname" id="customer_firstname" value="{{cabinet.user().name}}" placeholder="" data-reload-payment-form="true">
+                    <div class="simplecheckout-rule-group" data-for="customer_firstname">
+                      <div style="display:none;" data-for="customer_firstname" data-rule="byLength" class="simplecheckout-error-text simplecheckout-rule" data-length-min="1" data-length-max="40" data-required="true">Имя должно быть от 1 до 40 символов!</div>
+                  </div>
+                </div>
+          </div>
+          <div class="form-group required">
+            <label class="control-label col-sm-2" for="shipping_address_country_id">Область</label>
+            <div class="col-sm-10">
+              <select class="form-control" name="country" id="shipping_address_country_id" data-theme="bootstrap" data-onchange="reloadAll">
+                      <option value=""> --- Выберите --- </option>
+                      <option {%if cabinet.user().region == 'Івано-Франківська область'%}selected{%endif%} value="Івано-Франківська область">Івано-Франківська область</option>
+                      <option {%if cabinet.user().region == 'Вінницька область'%}selected{%endif%} value="Вінницька область">Вінницька область</option>
+                      <option {%if cabinet.user().region == 'Волинська область'%}selected{%endif%} value="Волинська область">Волинська область</option>
+                      <option {%if cabinet.user().region == 'Дніпропетровська область'%}selected{%endif%} value="Дніпропетровська область">Дніпропетровська область</option>
+                      <option {%if cabinet.user().region == 'Донецька область'%}selected{%endif%} value="Донецька область">Донецька область</option>
+                      <option {%if cabinet.user().region == 'Житомирська область'%}selected{%endif%} value="Житомирська область">Житомирська область</option>
+                      <option {%if cabinet.user().region == 'Закарпатська область'%}selected{%endif%} value="Закарпатська область">Закарпатська область</option>
+                      <option {%if cabinet.user().region == 'Запорізька область'%}selected{%endif%} value="Запорізька область">Запорізька область</option>
+                      <option {%if cabinet.user().region == 'Кіровоградська область'%}selected{%endif%} value="Кіровоградська область">Кіровоградська область</option>
+                      <option {%if cabinet.user().region == 'Київська область'%}selected{%endif%} value="Київська область">Київська область</option>
+                      <option {%if cabinet.user().region == 'Луганська область'%}selected{%endif%} value="Луганська область">Луганська область</option>
+                      <option {%if cabinet.user().region == 'Львівська область'%}selected{%endif%} value="Львівська область">Львівська область</option>
+                      <option {%if cabinet.user().region == 'Миколаївська область'%}selected{%endif%} value="Миколаївська область">Миколаївська область</option>
+                      <option {%if cabinet.user().region == 'Одеська область'%}selected{%endif%} value="Одеська область">Одеська область</option>
+                      <option {%if cabinet.user().region == 'Полтавська область'%}selected{%endif%} value="Полтавська область">Полтавська область</option>
+                      <option {%if cabinet.user().region == 'Рівненська область'%}selected{%endif%} value="Рівненська область">Рівненська область</option>
+                      <option {%if cabinet.user().region == 'Сумська область'%}selected{%endif%} value="Сумська область">Сумська область</option>
+                      <option {%if cabinet.user().region == 'Тернопільська область'%}selected{%endif%} value="Тернопільська область">Тернопільська область</option>
+                      <option {%if cabinet.user().region == 'Харківська область'%}selected{%endif%} value="Харківська область">Харківська область</option>
+                      <option  {%if cabinet.user().region == 'Херсонська область'%}selected{%endif%}value="Херсонська область">Херсонська область</option>
+                      <option {%if cabinet.user().region == 'Хмельницька область'%}selected{%endif%} value="Хмельницька область">Хмельницька область</option>
+                      <option {%if cabinet.user().region == 'Черкаська область'%}selected{%endif%} value="Черкаська область">Черкаська область</option>
+                      <option {%if cabinet.user().region == 'Чернівецька область'%}selected{%endif%} value="Чернівецька область">Чернівецька область</option>
+                      <option {%if cabinet.user().region == 'Чернігівська область'%}selected{%endif%} value="Чернігівська область">Чернігівська область</option>
+                  </select>
+                    <div class="simplecheckout-rule-group" data-for="shipping_address_country_id">
+                      <div style="display:none;" data-for="shipping_address_country_id" data-rule="notEmpty" class="simplecheckout-error-text simplecheckout-rule" data-not-empty="1">Выберите область!</div>
+                  </div>
+                </div>
+          </div>
+          <div class="form-group required">
+            <label class="control-label col-sm-2" for="shipping_address_zone_id">Город</label>
+            <div class="col-sm-10">
+              <input class="form-control" type="text" name="shipping_address_city" id="shipping_address_city" value="{{cabinet.user().city}}" placeholder="" data-reload-payment-form="true" data-original-title="" title="">
+          </div>
+          </div>
+          <div class="form-group required">
+            <label class="control-label col-sm-2" for="shipping_address_field20">Отделение Новой Почты</label>
+            <div class="col-sm-10">
+              <input class="form-control" type="text" name="shipping_address" id="shipping_address_field20" value="{{cabinet.user().address}}" placeholder="" data-reload-payment-form="true" data-original-title="" title="">
+          </div>
+          </div>
+        </fieldset>
+        <div class="buttons clearfix">
+          <div class="pull-left"><a href="/my-account" class="btn btn-default">Назад</a></div>
+          <div class="pull-right">
+            <input type="submit" value="Продолжить" class="btn btn-primary">
+          </div>
+        </div>
+      </form>
+      </div>
+{%endblock%}

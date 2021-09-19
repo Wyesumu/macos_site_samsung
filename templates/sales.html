@@ -1,0 +1,497 @@
+{% extends 'layout.html' %}
+{%block content%}
+
+<div class="container">
+	 <!-- BREADCRUMB -->
+	<ul class="breadcrumb">
+        <li><a href="/"><i class="fa fa-home"></i></a></li>
+        <li><a href="/sales">Акции</a></li>
+      </ul>
+  
+  <div class="row">
+    <div id="content" class="col-sm-12">
+      	<!-- Filters -->
+        <div class="product-filter filters-panel">
+                    <div class="row">
+                        <div class="box-list col-md-2 hidden-sm hidden-xs">
+                            <div class="view-mode">
+                                <div class="list-view">
+                                    <button class="btn btn-default grid {%if session['view'] == 'grid' %}active{%endif%}" onclick='window.location.href="/change?view=grid&back={{request.full_path}}"' data-toggle="tooltip" title="Сетка"><i class="fa fa-th-large" ></i></button>
+                                    <button class="btn btn-default list {%if session['view'] == 'list' %}active{%endif%}" onclick='window.location.href="/change?view=list&back={{request.full_path}}"' data-toggle="tooltip" title="Список"><i class="fa fa-bars"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="short-by-show form-inline text-right col-md-10 col-sm-12">
+                            <div class="form-group short-by">
+                                <label class="control-label" for="input-sort">Сортировать:</label>
+                                <select id="input-sort" class="form-control" onchange='window.location.href = document.getElementById("input-sort").value'>
+                                    <option value="/sales?sort=p.sort_order&amp;order=ASC">По умолчанию</option>
+                                    <option {%if request.args.get('sort') == 'pd.name' and request.args.get('order') == 'ASC'%}selected{%endif%} value="/sales?sort=pd.name&amp;order=ASC">По имени (A - Я)</option>
+                                    <option {%if request.args.get('sort') == 'pd.name' and request.args.get('order') == 'DESC'%}selected{%endif%} value="/sales?sort=pd.name&amp;order=DESC">По имени (Я - A)</option>
+                                    <option {%if request.args.get('sort') == 'p.price' and request.args.get('order') == 'ASC'%}selected{%endif%} value="/sales?sort=p.price&amp;order=ASC">По цене (возрастанию)</option>
+                                    <option {%if request.args.get('sort') == 'p.price' and request.args.get('order') == 'DESC'%}selected{%endif%} value="/sales?sort=p.price&amp;order=DESC">По цене (убыванию)</option>
+                                    <option {%if request.args.get('sort') == 'rating' and request.args.get('order') == 'DESC'%}selected{%endif%} value="/sales?sort=rating&amp;order=DESC">По рейтингу (убыванию)</option>
+                                    <option {%if request.args.get('sort') == 'rating' and request.args.get('order') == 'ASC'%}selected{%endif%} value="/sales?sort=rating&amp;order=ASC">По рейтингу (возрастанию)</option>
+                                    <option {%if request.args.get('sort') == 'p.model' and request.args.get('order') == 'ASC'%}selected{%endif%} value="/sales?sort=p.model&amp;order=ASC">По модели (A - Я)</option>
+                                    <option {%if request.args.get('sort') == 'p.model' and request.args.get('order') == 'DESC'%}selected{%endif%} value="/sales?sort=p.model&amp;order=DESC">По модели (Я - A)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="input-limit">Показывать:</label>
+                                <select id="input-limit" class="form-control" onchange='window.location.href = document.getElementById("input-limit").value'>
+                                    <option {%if request.args.get('limit') == '12'%}selected{%endif%} value="/sales?limit=12">12</option>
+                                    <option {%if request.args.get('limit') == '25'%}selected{%endif%} value="/sales?limit=25">25</option>
+                                    <option {%if request.args.get('limit') == '50'%}selected{%endif%} value="/sales?limit=50">50</option>
+                                    <option {%if request.args.get('limit') == '75'%}selected{%endif%} value="/sales?limit=75">75</option>
+                                    <option {%if request.args.get('limit') == '100'%}selected{%endif%} value="/sales?limit=100">100</option>
+                                </select>
+                            </div>
+                            <div class="product-compare form-group"><a href="/compare" id="compare-total" class="btn btn-default"><i class="fa fa-retweet"></i> В сравнение</a></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- //end Filters -->
+                <!--Changed Listings-->
+
+                {%if session['view'] == 'list' %}
+                <div class="products-list row list">
+                {%for good in data.items %}
+                <div class="product-list product-layout col-xs-12" id="good_{{good.id}}" data-name="{{good.name}}" data-href="/catalog/{{good.url}}">
+                    <div class="product-item-container">
+                        <div class="left-block col-md-4">
+                            <div class="product-image-container   ">
+                                {%if good.images%}
+                                    <img id="img_{{good.id}}" data-src="{{config['THUMBNAIL_FOLDER']}}/{{good.images[0].file_name}}" src="{{config['THUMBNAIL_FOLDER']}}/{{good.images[0].file_name}}" title="{{good.name}}" class="img-1 img-responsive" />
+                                {%endif%}             
+                            </div>
+                        </div>
+                        <!-- end left block -->
+                        
+                        <div class="right-block col-md-8">
+                            <!-- NAME -->
+                            <div class="caption">
+                                <h4><a href="/catalog/{{good.url}}">{{good.name}}</a></h4>      
+                                                    <!-- RATING -->
+                                <div class="ratings">
+                                    <div class="rating-box">
+                                        {%for i in range(1,6)%}
+                                            {% if i <= good.get_avg_ratig() %}
+                                                <span class="fa fa-stack">
+                                                    <i class="fa fa-star fa-stack-2x"></i>
+                                                    <i class="fa fa-star-o fa-stack-2x"></i>
+                                                  </span>
+                                            {%else%}
+                                                <span class="fa fa-stack">
+                                                    <i class="fa fa-star-o fa-stack-2x"></i>
+                                                  </span>
+                                            {%endif%}
+                                        {%endfor%}
+                                    </div>
+                                </div>
+                                                    <!-- DESCRIP -->
+                                <div class="description">
+                                    <p>{{good.details[:153] | striptags}}..</p>
+                                </div>
+                                <!-- PRICE -->
+                                <div class="price">
+                                    <span class="price-new">{{'{0:,}'.format(good.price).replace(',',' ')}} грн.</span>                           
+                                </div>
+
+                            </div>
+                            
+                          <div class="button-group">
+                            <button class="addToCart font-sn" type="button" data-toggle="tooltip" title="" onclick="AddToCart({{good.id}})" data-original-title="Купить"> <span>Купить</span></button>
+                            <button class="wishlist btn-button" type="button" data-toggle="tooltip" title="" onclick="AddToWishlist({{good.id}})" data-original-title="В закладки"><i class="fa fa-heart-o"></i></button>
+                            <button class="compare btn-button" type="button" data-toggle="tooltip" title="" onclick="AddToCompare({{good.id}})" data-original-title="В сравнение"><i class="fa fa-retweet"></i></button>
+                          </div>
+                       
+                        </div><!-- right block -->
+
+                    </div>
+                </div>
+                {%endfor%}
+            </div>
+            {%else%}
+                <div class="products-list row grid">
+                    {%for good in data.items %}
+                    <div class="product-layout col-lg-3 col-md-3 col-sm-4 col-xs-6" id="good_{{good.id}}" data-name="{{good.name}}" data-href="/catalog/{{good.url}}">
+                        <div class="product-item-container">
+                            <div class="left-block">
+                                <div class="product-image-container">
+                                    <a href="/catalog/{{good.url}}" title="{{good.name}}">
+                                        {%if good.images%}
+                                        <img style='margin-left: auto;margin-right: auto;' id="img_{{good.id}}" data-src="{{config['THUMBNAIL_FOLDER']}}/{{good.images[0].file_name}}" src="{{config['THUMBNAIL_FOLDER']}}/{{good.images[0].file_name}}" title="{{good.name}}" class="img-1 img-responsive" />
+                                        {%endif%}
+                                    </a>
+                                </div>
+                                <!--COUNTDOWN BOX-->
+                                {%if good.sales%}
+                                <div class="countdown_box">
+                                    <div class="countdown_inner">
+                                        <div class="title ">До конца акции осталось:</div>
+                                        <script type="text/javascript">
+                                         $(document).ready(function () {
+                                            var countDownDate = Date.parse('{{good.sales[0].end_date.strftime("%Y/%m/%d %H:%M:%S")}}');
+
+                                            // Update the count down every 1 second
+                                            var x = setInterval(function() {
+
+                                              // Get today's date and time
+                                              var now = new Date().getTime();
+
+                                              // Find the distance between now and the count down date
+                                              var distance = countDownDate - now;
+
+                                              // Time calculations for days, hours, minutes and seconds
+                                              var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                                              var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                              var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                              var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                                              // Display the result in the element with id="demo"
+                                              document.getElementsByClassName("defaultCountdown-grid-{{good.sales[0].id}}")[0].innerHTML = '<div class="time-item time-day"><div class="num-time">'+days+'</div><div class="name-time">Дней </div></div>'
+                                                   + '<div class="time-item time-hour"><div class="num-time">'+hours+'</div><div class="name-time">Часа </div></div>'
+                                                   + '<div class="time-item time-min"><div class="num-time">'+minutes+'</div><div class="name-time">Мин </div></div>'
+                                                   + '<div class="time-item time-sec"><div class="num-time">'+seconds+'</div><div class="name-time">Сек </div></div>';
+
+                                              
+
+                                              // If the count down is finished, write some text
+                                              
+                                            }, 1000);
+                                        })
+                                        </script>
+                                        <div class="defaultCountdown-grid-{{good.sales[0].id}}"></div>
+                                    </div>
+                                </div>
+                            <div class="box-label">
+                                <span class="label-product label-sale">
+                                    -{{good.sales[0].sale}}%
+                                </span>
+                            </div>
+                            {%endif%}
+                            </div>
+                            <div class="right-block">
+                                <div class="caption">
+                                    <h4><a href="/catalog/{{good.url}}">{{good.name}}</a></h4>
+                                    <div class="ratings">
+                                        <div class="rating-box">
+                                            <span class="fa fa-stack"><i class="fa fa-star-o fa-stack-1x"></i></span>
+                                            <span class="fa fa-stack"><i class="fa fa-star-o fa-stack-1x"></i></span>
+                                            <span class="fa fa-stack"><i class="fa fa-star-o fa-stack-1x"></i></span>
+                                            <span class="fa fa-stack"><i class="fa fa-star-o fa-stack-1x"></i></span>
+                                            <span class="fa fa-stack"><i class="fa fa-star-o fa-stack-1x"></i></span>
+                                        </div>
+                                    </div>
+                                    <div class="price">
+                                        {%if good.sales%}
+                                        <span class="price-new">{{'{0:,}'.format((good.price - (good.price * good.sales[0].sale)/100) | int).replace(',',' ')}} грн.</span>   
+                                        <span class="price-old">
+                                            {{'{0:,}'.format(good.price).replace(',',' ')}} грн.
+                                        </span>
+                                        {%else%}
+                                        <span class="price-new">
+                                            {{'{0:,}'.format(good.price).replace(',',' ')}} грн.
+                                        </span>
+                                        {%endif%}
+                                    </div>
+                                    {%if good.details%}
+                                    <div class="description  hidden ">
+                                        <p>{{good.details[:120] | striptags}}</p>
+                                    </div>
+                                    {%endif%}
+                                </div>
+                                <div class="button-group" style="opacity: 1;">
+                                    <button class="addToCart" type="button" data-toggle="tooltip" title="Купить" onclick="AddToCart({{good.id}})"><span>Купить</span></button>
+                                    <button class="wishlist btn-button" type="button" data-toggle="tooltip" title="В закладки" onclick="AddToWishlist({{good.id}})"><i class="fa fa-heart-o"></i></button>
+                                    <small style="transition: bottom 0.2s ease-in-out; cursor: pointer;position:relative;visibility: visible;top: 10px;" onclick='window.quick_buy_good = {{good.id}}; $("#quick_buy").modal("show");'>Купить в один клик</small>
+                                </div>
+                            </div>
+                        
+
+                    </div>
+
+                </div>
+                {%if loop.index % 4 == 0 %}
+                    <div class="clearfix visible-lg-block"></div>
+                    <div class="clearfix visible-md-block"></div>
+                    <div class="clearfix visible-sm-block"></div>
+                    <div class="clearfix visible-xs-block"></div>
+                {%endif%}
+                {%if loop.index % 2 == 0%}
+                    <div class="clearfix visible-sm-block"></div>
+                {%endif%}
+                {%endfor%}
+            </div>
+            {%endif%}
+
+                <!--// End Changed listings-->
+                <!-- Filters -->
+                <div class="product-filter product-filter-bottom filters-panel">
+                    <div class="row">
+                        <div class="box-list col-md-2 hidden-sm hidden-xs">
+                            <div class="view-mode">
+                                <div class="list-view">
+                                    <button class="btn btn-default grid {%if session['view'] == 'grid' %}active{%endif%}" onclick='window.location.href="/change?view=grid&back={{request.full_path}}"' data-toggle="tooltip" title="Сетка"><i class="fa fa-th-large" ></i></button>
+                                    <button class="btn btn-default list {%if session['view'] == 'list' %}active{%endif%}" onclick='window.location.href="/change?view=list&back={{request.full_path}}"' data-toggle="tooltip" title="Список"><i class="fa fa-bars"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="short-by-show text-center col-md-6 col-sm-8 col-xs-12">
+                            <div class="form-group" style="margin:0px">Показано с 1 по {{data.items | length}} из {{data.total}} (всего {{data.pages}} страниц)</div>
+                        </div>
+                        <div class="box-pagination col-md-4 col-sm-4 text-right">
+                            <ul class="pagination">
+                            	{% if data.page != 1%}
+						          <li><a href="{{ url_for('search',category_id=request.args.get('category_id'), search=request.args.get('search'), page='1',order = request.args.get('order', default='ASC'), sort = request.args.get('sort', default='pd.name'), limit = request.args.get('limit', default=12)) }}">|&lt;</a></li>
+
+                                	<li><a href="{{ url_for('search',category_id=request.args.get('category_id'), search=request.args.get('search'), page=data.prev_num,order = request.args.get('order', default='ASC'), sort = request.args.get('sort', default='pd.name'), limit = request.args.get('limit', default=12)) }}">&lt;</a></li>
+						        {% endif %}
+
+                               {%- for page in data.iter_pages() %}
+						        {% if page %}
+						            <li {% if page == data.page %}class="active"{% endif %}><a href="{{ url_for('search',category_id=request.args.get('category_id'), search=request.args.get('search'), page=page,order = request.args.get('order', default='ASC'), sort = request.args.get('sort', default='pd.name'), limit = request.args.get('limit', default=12)) }}">{{ page }}</a></li>
+						        {% endif %}
+						      {%- endfor %}
+						      	{% if data.page != data.pages%}
+                                	<li><a href="{{ url_for('search',category_id=request.args.get('category_id'), search=request.args.get('search'), page=data.next_num,order = request.args.get('order', default='ASC'), sort = request.args.get('sort', default='pd.name'), limit = request.args.get('limit',  default=12)) }}">&gt;</a></li>
+
+                                	<li><a href="{{ url_for('search',category_id=request.args.get('category_id'), search=request.args.get('search'), page=data.pages,order = request.args.get('order', default='ASC'), sort = request.args.get('sort', default='pd.name'), limit = request.args.get('limit', default=12)) }}">&gt;|</a></li>
+                                {%endif%}
+                                
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+	<!-- //end Filters -->
+
+	
+	
+  <!--end content-->
+      </div>
+    </div>
+</div>
+
+{%endblock%}
+{%block script%}
+
+<div id="jGrowl" class="top-right jGrowl">
+    <div class="jGrowl-notification"></div>
+    <div id="added-to-cart-popup" class="jGrowl-notification alert ui-state-highlight ui-corner-all success" style="display: none;">
+        <button class="jGrowl-close" onclick="$('#added-to-cart-popup').css({'display':'none'})">×</button>
+        <div class="jGrowl-header">Товар добавлен в корзину</div>
+        <div class="jGrowl-message">
+            <img id="pop_up_img" src="https://macos.in.ua/image/cache/catalog/airpods_2-74x74.jpg" alt="">
+            <h3>
+                <a id="pop_up_link" href=""></a> добавлен в <a href="/cart">корзину</a>!
+            </h3>
+        </div>
+    </div>
+</div>
+<div id="jGrowl" class="top-right jGrowl">
+    <div class="jGrowl-notification"></div>
+    <div id="wl-popup" class="jGrowl-notification alert ui-state-highlight ui-corner-all success" style="display: none;">
+        <button class="jGrowl-close" onclick="$('#wl-popup').css({'display':'none'})">×</button>
+        <div class="jGrowl-header">Товар добавлен в избранное</div>
+        <div class="jGrowl-message">
+            <img id="wl_pop_up_img" src="https://macos.in.ua/image/cache/catalog/airpods_2-74x74.jpg" alt="">
+            <h3>
+                <a id="wl_pop_up_link" href=""></a> добавлен в <a href="/wishlist">избранное</a>!
+            </h3>
+        </div>
+    </div>
+</div>
+
+<div id="jGrowl" class="top-right jGrowl">
+    <div class="jGrowl-notification"></div>
+    <div id="cp-popup" class="jGrowl-notification alert ui-state-highlight ui-corner-all success" style="display: none;">
+        <button class="jGrowl-close" onclick="$('#cp-popup').css({'display':'none'})">×</button>
+        <div class="jGrowl-header">Товар добавлен в избранное</div>
+        <div class="jGrowl-message">
+            <img id="cp_pop_up_img" src="https://macos.in.ua/image/cache/catalog/airpods_2-74x74.jpg" alt="">
+            <h3>
+                <a id="cp_pop_up_link" href=""></a> добавлен в <a href="/compare">сравнение</a>!
+            </h3>
+        </div>
+    </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id='quick_buy'>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Купить в один клик</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="/confirm_order{%if cabinet.get()%}?user_id={{cabinet.user().id}}{%endif%}" method="POST">
+      <div class="modal-body">
+            <fieldset class="form-horizontal">
+                <div class="form-group required row-customer_firstname">
+    <label class="control-label col-sm-4" for="customer_firstname">Фамилия Имя Отчество </label>
+    <div class="col-sm-8">
+              <input class="form-control" type="text" name="firstname" id="customer_firstname" value="{{cabinet.user().name}}" placeholder="" data-reload-payment-form="true">
+                    <div class="simplecheckout-rule-group" data-for="customer_firstname">
+                      <div style="display:none;" data-for="customer_firstname" data-rule="byLength" class="simplecheckout-error-text simplecheckout-rule" data-length-min="1" data-length-max="40" data-required="true">Имя должно быть от 1 до 40 символов!</div>
+                  </div>
+                </div>
+ </div>          <div class="form-group required row-customer_telephone">
+    <label class="control-label col-sm-4" for="customer_telephone">Телефон</label>
+    <div class="col-sm-8">
+              <input class="form-control" type="tel" name="telephone" id="customer_telephone" value="{{cabinet.user().phone}}" placeholder="" data-mask="+38 (999) 999-99-99" data-reload-payment-form="true">
+                      </div>
+                  </div>
+                  <div class="form-group  row-shipping_address_country_id">
+    <label class="control-label col-sm-4" for="shipping_address_country_id">Область</label>
+    <div class="col-sm-8">
+              <select class="form-control" name="country" id="shipping_address_country_id" data-theme="bootstrap" data-onchange="reloadAll">
+                      <option value=""> --- Выберите --- </option>
+                      <option {%if cabinet.user().region == 'Івано-Франківська область'%}selected{%endif%} value="Івано-Франківська область">Івано-Франківська область</option>
+                      <option {%if cabinet.user().region == 'Вінницька область'%}selected{%endif%} value="Вінницька область">Вінницька область</option>
+                      <option {%if cabinet.user().region == 'Волинська область'%}selected{%endif%} value="Волинська область">Волинська область</option>
+                      <option {%if cabinet.user().region == 'Дніпропетровська область'%}selected{%endif%} value="Дніпропетровська область">Дніпропетровська область</option>
+                      <option {%if cabinet.user().region == 'Донецька область'%}selected{%endif%} value="Донецька область">Донецька область</option>
+                      <option {%if cabinet.user().region == 'Житомирська область'%}selected{%endif%} value="Житомирська область">Житомирська область</option>
+                      <option {%if cabinet.user().region == 'Закарпатська область'%}selected{%endif%} value="Закарпатська область">Закарпатська область</option>
+                      <option {%if cabinet.user().region == 'Запорізька область'%}selected{%endif%} value="Запорізька область">Запорізька область</option>
+                      <option {%if cabinet.user().region == 'Кіровоградська область'%}selected{%endif%} value="Кіровоградська область">Кіровоградська область</option>
+                      <option {%if cabinet.user().region == 'Київська область'%}selected{%endif%} value="Київська область">Київська область</option>
+                      <option {%if cabinet.user().region == 'Луганська область'%}selected{%endif%} value="Луганська область">Луганська область</option>
+                      <option {%if cabinet.user().region == 'Львівська область'%}selected{%endif%} value="Львівська область">Львівська область</option>
+                      <option {%if cabinet.user().region == 'Миколаївська область'%}selected{%endif%} value="Миколаївська область">Миколаївська область</option>
+                      <option {%if cabinet.user().region == 'Одеська область'%}selected{%endif%} value="Одеська область">Одеська область</option>
+                      <option {%if cabinet.user().region == 'Полтавська область'%}selected{%endif%} value="Полтавська область">Полтавська область</option>
+                      <option {%if cabinet.user().region == 'Рівненська область'%}selected{%endif%} value="Рівненська область">Рівненська область</option>
+                      <option {%if cabinet.user().region == 'Сумська область'%}selected{%endif%} value="Сумська область">Сумська область</option>
+                      <option {%if cabinet.user().region == 'Тернопільська область'%}selected{%endif%} value="Тернопільська область">Тернопільська область</option>
+                      <option {%if cabinet.user().region == 'Харківська область'%}selected{%endif%} value="Харківська область">Харківська область</option>
+                      <option  {%if cabinet.user().region == 'Херсонська область'%}selected{%endif%}value="Херсонська область">Херсонська область</option>
+                      <option {%if cabinet.user().region == 'Хмельницька область'%}selected{%endif%} value="Хмельницька область">Хмельницька область</option>
+                      <option {%if cabinet.user().region == 'Черкаська область'%}selected{%endif%} value="Черкаська область">Черкаська область</option>
+                      <option {%if cabinet.user().region == 'Чернівецька область'%}selected{%endif%} value="Чернівецька область">Чернівецька область</option>
+                      <option {%if cabinet.user().region == 'Чернігівська область'%}selected{%endif%} value="Чернігівська область">Чернігівська область</option>
+                  </select>
+                    <div class="simplecheckout-rule-group" data-for="shipping_address_country_id">
+                      <div style="display:none;" data-for="shipping_address_country_id" data-rule="notEmpty" class="simplecheckout-error-text simplecheckout-rule" data-not-empty="1">Выберите область!</div>
+                  </div>
+                </div>
+ </div>
+                  <div class="form-group  row-shipping_address_zone_id">
+    <label class="control-label col-sm-4" for="shipping_address_zone_id">Город</label>
+    <div class="col-sm-8">
+              <input class="form-control" type="text" name="shipping_address_city" id="shipping_address_city" value="{{cabinet.user().city}}" placeholder="" data-reload-payment-form="true" data-original-title="" title="">
+          </div>
+                    <div class="simplecheckout-rule-group" data-for="shipping_address_zone_id">
+                      <div style="display:none;" data-for="shipping_address_zone_id" data-rule="notEmpty" class="simplecheckout-error-text simplecheckout-rule" data-not-empty="1">Выберите город!</div>
+                  </div>
+                </div>
+          <div class="form-group  row-shipping_address_field20">
+    <label class="control-label col-sm-4" for="shipping_address_field20">Отделение Новой почты</label>
+    <div class="col-sm-8">
+              <input class="form-control" type="text" name="shipping_address" id="shipping_address_field20" value="{{cabinet.user().address}}" placeholder="" data-reload-payment-form="true" data-original-title="" title="">
+          </div>
+ </div>     <label class="control-label col-sm-4" for="shipping_address_field20">{{ captcha() }}</label>
+             <div class="simplecheckout-right-column" style="float: left; width: 40%; margin-top: 1%; margin-left: 2%">
+            <input type="text" id='modal_captcha' name="captcha">
+            </div>
+              </fieldset>
+        
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-secondary" onclick='AddToCart(window.quick_buy_good);'>Продолжить</a>
+        <input type="submit" id='finish_quick_buy' style='visibility: hidden'>
+      </div>
+      </form>
+    </div>
+    
+  </div>
+</div>
+<script type="text/javascript">
+    function AddToWishlist(good_id){
+        var data = {'good_id':good_id};
+        $('#wl_pop_up_img').attr({'src':$('#img_'+good_id).data('src')})
+        $('#wl_pop_up_link').text($('#good_'+good_id).data('name'))
+        $('#wl_pop_up_link').attr({'href':$('#good_'+good_id).data('href')})
+
+        $('#wl-popup').css({'display':'block'})
+
+        setTimeout(function(){
+            $('#wl-popup').fadeOut();
+        }, 2000);
+        $.ajax({
+            type : "POST",
+            url : "{{ url_for('add_good_wishlist')}}",
+            data: JSON.stringify(data, null, '\t'),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+              console.log(result);
+            }
+        });
+        return false;
+    }
+
+    function AddToCompare(good_id){
+        var data = {'good_id':good_id};
+        $('#cp_pop_up_img').attr({'src':$('#img_'+good_id).data('src')})
+        $('#cp_pop_up_link').text($('#good_'+good_id).data('name'))
+        $('#cp_pop_up_link').attr({'href':$('#good_'+good_id).data('href')})
+
+        $('#cp-popup').css({'display':'block'})
+
+        setTimeout(function(){
+            $('#cp-popup').fadeOut();
+        }, 2000);
+        $.ajax({
+            type : "POST",
+            url : "{{ url_for('add_good_compare')}}",
+            data: JSON.stringify(data, null, '\t'),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+              console.log(result);
+            }
+        });
+        return false;
+    }
+
+    function AddToCart(good_id) {
+        var data = {'good_id':good_id, 'amount':1};
+
+        $('#pop_up_img').attr({'src':$('#img_'+good_id).data('src')})
+        $('#pop_up_link').text($('#good_'+good_id).data('name'))
+        $('#pop_up_link').attr({'href':$('#good_'+good_id).data('href')})
+
+        $('#added-to-cart-popup').css({'display':'block'})
+
+        setTimeout(function(){
+            $('#added-to-cart-popup').fadeOut();
+        }, 2000);
+
+        $.ajax({
+            type : "POST",
+            url : "{{ url_for('add_good_cart')}}",
+            data: JSON.stringify(data, null, '\t'),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+              console.log(result);
+              result = JSON.parse(result);
+              $("#total_cart_goods").text(result.good_amount);
+              $('#cart_container').empty()
+              let cart = result['cart']
+              let element = ''
+              for (i in cart){
+                let good = cart[i]
+                let html = '<tr><td class="text-center size-img-cart"><a href="'+good['model']['url']+'"><img src="'+good['model']['img']+'" alt="'+good['model']['name']+'"></a></td><td class="text-left"><a class="cart_product_name" href="'+good['model']['url']+'">'+good['model']['name']+'</a></td><td class="text-center">x '+good['amount']+'</td><td class="text-center">'+good['price']+' грн.</td><td class="text-right"><form action="/pop_cart_good?id='+good['good_id']+'&backurl={{request.path[1:]}}" method="POST"><label><input type="submit" style="display: none;" /><div style="cursor: pointer;" class="fa fa-trash-o"></div></label></form></td></tr>'
+                element = element + html;
+              }
+              $('#cart_container').html(element);
+              if($('#finish_quick_buy').length && $('#modal_captcha').val() != ''){
+                $('#finish_quick_buy').click();
+              }
+            }
+        });
+        return false;
+    };
+</script>
+{%endblock%}

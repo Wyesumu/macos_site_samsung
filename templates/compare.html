@@ -1,0 +1,198 @@
+{% extends 'layout.html' %}
+  {%block content%}
+<div class="container">
+  <ul class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i></a></li>
+    <li><a href="/compare">Сравнение товаров</a></li>
+  </ul>
+  <div class='row'>
+  <div id="content" class="col-sm-12">
+    <h1>Сравнение товаров</h1>
+    {%if goods%}
+        <div class="overflow_auto">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <td colspan="3">
+                      <strong>Информация о товаре</strong>
+                    </td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Наименование</td>
+                    {%for good in goods%}
+                    <td>
+                      <a href="{{good.url}}" id='good_{{good.id}}' data-name='{{good.name}}'>
+                        <strong>{{good.name}}</strong>
+                      </a>
+                    </td>
+                    {%endfor%}
+                </tr>
+                <tr>
+                    <td>Изображение</td>
+                    {%for good in goods%}
+                    <td class="text-center">
+                      {%if good.images%}
+                      <img src="{{config['THUMBNAIL_FOLDER']}}/{{good.images[0]}}" id='img_{{good.id}}' alt="{{good.name}}" class="img-thumbnail">
+                      {%endif%}
+                    </td>
+                    {%endfor%}
+                </tr>
+                <tr>
+                    <td>Цена</td>
+                    {%for good in goods%}
+                    <td>
+                      {%if good.sales%}
+
+                      <span class="price-new">{{'{0:,}'.format((good.price - (good.price * good.sales[0].sale)/100) | int).replace(',',' ')}} грн.</span>   
+                      <span class="price-old">
+                          {{'{0:,}'.format(good.price).replace(',',' ')}} грн.
+                      </span>
+                      {%else%}
+                      <span class="price-new">
+                          {{'{0:,}'.format(good.price).replace(',',' ')}} грн.
+                      </span>
+                      {%endif%}
+                    </td>
+                    {%endfor%}
+                </tr>
+                <tr>
+                    <td>Модель</td>
+                    {%for good in goods%}
+                    <td>{{good.model}}</td>
+                    {%endfor%}
+                </tr>
+                <tr>
+                    <td>Производитель</td>
+                    {%for good in goods%}
+                    <td>{{good.manufacture}}</td>
+                    {%endfor%}
+                </tr>
+                <tr>
+                    <td>Доступность</td>
+                    {%for good in goods%}
+                      {%if good.in_stock%}
+                      <td><i class="fa fa-check-square-o"></i>  
+                      В наличии</td>
+                      {%else%}
+                      <td><i class="fa fa-minus-square-o"></i> 
+                      Нет в наличии</td>
+                      {%endif%} 
+                    {%endfor%}
+                </tr>
+                <tr>
+                    <td>Рейтинг</td>
+                    {%for good in goods%}
+                      <td>
+                        {%for i in range(1,6)%}
+                          {% if i <= good.get_avg_ratig() %}
+                            <span class="fa fa-stack">
+                                      <i class="fa fa-star fa-stack-2x"></i>
+                                      <i class="fa fa-star-o fa-stack-2x"></i>
+                                    </span>
+                              {%else%}
+                                <span class="fa fa-stack">
+                                      <i class="fa fa-star-o fa-stack-2x"></i>
+                                    </span>
+                              {%endif%}
+                        {%endfor%}
+                        <br>
+                        На основании {{good.reviews | length}} отзыва(ов)
+                      </td>
+                      {%endfor%}
+                                        
+                  </tr>
+                  <tr>
+                    <td>Краткое описание</td>
+                    {%for good in goods%}
+                    <td class="description">{{good.details[:260] | striptags}}...</td>
+                    {%endfor%}
+                    
+                </tr>
+                <tr>
+                    <td>Вес</td>
+                    {%for good in goods%}
+                    <td>0.00кг</td>
+                    {%endfor%}
+                </tr>
+                <tr>
+                    <td>(Д x Ш x В)</td>
+                    {%for good in goods%}
+                    <td>0.00см x 0.00см x 0.00см</td>
+                    {%endfor%}
+                </tr>
+                </tbody>
+                <tbody>
+                  <tr>
+                    <td></td>
+                    {%for good in goods%}
+                      <td>
+                        <input type="button" value="Купить" class="btn btn-primary btn-block" onclick="AddToCart({{good.id}})">
+                        <a href="/remove_good_compare?good_id={{good.id}}" class="btn btn-danger btn-block">Удалить</a>
+                      </td>
+                      {%endfor%}
+                    </tr>
+                </tbody>
+              </table>
+        </div>
+
+<div id="jGrowl" class="top-right jGrowl">
+  <div class="jGrowl-notification"></div>
+  <div id="added-to-cart-popup" class="jGrowl-notification alert ui-state-highlight ui-corner-all success" style="display: none;">
+    <button class="jGrowl-close" onclick="$('#added-to-cart-popup').css({'display':'none'})">×</button>
+    <div class="jGrowl-header">Товар добавлен в корзину</div>
+    <div class="jGrowl-message">
+      <img id="pop_up_img" src="https://macos.in.ua/image/cache/catalog/airpods_2-74x74.jpg" alt="">
+      <h3>
+        <a id="pop_up_link" href=""></a> добавлен в <a href="/cart">корзину</a>!
+      </h3>
+    </div>
+  </div>
+</div>
+
+        <script type="text/javascript">
+        function AddToCart(good_id) {
+        var data = {'good_id':good_id, 'amount':1};
+
+        $('#pop_up_img').attr({'src':$('#img_'+good_id).attr('src')})
+        $('#pop_up_link').text($('#good_'+good_id).data('name'))
+        $('#pop_up_link').attr({'href':$('#good_'+good_id).data('href')})
+
+        $('#added-to-cart-popup').css({'display':'block'})
+
+        setTimeout(function(){
+            $('#added-to-cart-popup').fadeOut();
+        }, 2000);
+
+        $.ajax({
+            type : "POST",
+            url : "{{ url_for('add_good_cart')}}",
+            data: JSON.stringify(data, null, '\t'),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+              console.log(result);
+              result = JSON.parse(result);
+              $("#total_cart_goods").text(result.good_amount);
+              $('#cart_container').empty()
+              let cart = result['cart']
+              let element = ''
+              for (i in cart){
+                let good = cart[i]
+                let html = '<tr><td class="text-center size-img-cart"><a href="'+good['model']['url']+'"><img src="'+good['model']['img']+'" alt="'+good['model']['name']+'"></a></td><td class="text-left"><a class="cart_product_name" href="'+good['model']['url']+'">'+good['model']['name']+'</a></td><td class="text-center">x '+good['amount']+'</td><td class="text-center">'+good['price']+' грн.</td><td class="text-right"><form action="/pop_cart_good?id='+good['good_id']+'&backurl={{request.path[1:]}}" method="POST"><label><input type="submit" style="display: none;" /><div style="cursor: pointer;" class="fa fa-trash-o"></div></label></form></td></tr>'
+                element = element + html;
+              }
+              $('#cart_container').html(element);
+            }
+        });
+        return false;
+    };
+</script>
+        
+      {%else%}
+        <p>Нет товаров в сравнении</p>
+      {%endif%}
+</div>
+</div>
+</div>
+{%endblock%}

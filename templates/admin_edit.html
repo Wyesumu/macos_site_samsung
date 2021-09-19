@@ -1,0 +1,135 @@
+{% extends 'admin/model/edit.html' %}
+
+{% block tail %}
+    {{ super() }}
+    {{ ckeditor.load() }}
+	  <div id="upload_modal">
+	    <p id="msg"></p>
+	    <div class="row">
+	    	<div class="col-lg-6">
+		    <div class="input-group">
+		      <input class="form-control" type="file" id="multiFiles" name="files[]" multiple="multiple"/>
+		      <span class="input-group-btn">
+		        <a class="btn btn-default" id="upload">Загрузить</a>
+		      </span>
+		      <div style="display:none;" class="loader"></div>
+		    </div>
+		  </div>
+		</div>
+	  </div>
+
+<style>
+.loader {
+  border: 5px solid #f3f3f3; /* Light grey */
+  border-top: 5px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  animation: spin 2s linear infinite;
+}
+
+.f-l{
+    float:left !important;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+
+
+    <script type="text/javascript">
+
+
+    $(document).ready(function (e) {
+
+    	//CKEDITOR.replace( 'details' );
+    	$("#temp_field").replaceWith($("#upload_modal"));
+
+    		var elements = $( "li.select2-search-choice" ).children()
+
+    		for (var x = 0; x < elements.length; x=x+2){
+    			$(elements[x]).html('<img style="max-width:100px" src="{{config["THUMBNAIL_FOLDER"]}}/' + $(elements[x]).html() + '">')
+    		}
+
+
+    		$('#name').on('input',function () {
+    			var str = $('#name').val()
+
+    			str = str.replace(/^\s+|\s+$/g, ''); // trim
+			    str = str.toLowerCase();
+
+			    // remove accents, swap ñ for n, etc
+			    var from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+			    var to   = "aaaaeeeeiiiioooouuuunc------abvgdeejzijklmnoprstufhccss-i-eua";
+			    for (var i=0, l=from.length ; i<l ; i++) {
+			        str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
+			    }
+
+			    str = str.replace(/[^a-z0-9 -]/g, '') // remove invalid chars
+			        .replace(/\s+/g, '-') // collapse whitespace and replace by -
+			        .replace(/-+/g, '-'); // collapse dashes
+
+			    $('#url').val(str)
+
+    		})
+
+			$('#upload').on('click', function () {
+			    $('.loader').css('display','block');
+				var form_data = new FormData();
+				var ins = document.getElementById('multiFiles').files.length;
+				const urlParams = new URLSearchParams(window.location.search);
+
+				if(ins == 0) {
+					$('#msg').html('<span style="color:red">Select at least one file</span>');
+					return;
+				}
+
+				for (var x = 0; x < ins; x++) {
+					form_data.append("files[]", document.getElementById('multiFiles').files[x]);
+				}
+
+				$.ajax({
+					url: '/save_image?id='+urlParams.get('id'), // point to server-side URL
+					dataType: 'json', // what to expect back from server
+					cache: false,
+					contentType: false,
+					processData: false,
+					data: form_data,
+					type: 'post',
+					success: function (response) { // display success response
+						$('#msg').html('');
+
+						/*for (data in response['filenames']) {
+							var imgHtml = CKEDITOR.dom.element.createFromHtml('<img src="' + response['filenames'][data] + '"/>')
+							CKEDITOR.instances.content.insertElement(imgHtml);
+						}*/
+
+						$.each(response, function (key, data) {
+							if (key == 'filenames') {
+								console.log(key, data);
+								for (var image in data){
+								    $('.select2-choices').append('<li class="select2-search-choice">    <div><img style="max-width:100px" src="{{config["THUMBNAIL_FOLDER"]}}/'+data[image]+'"></div>    <a href="#" class="select2-search-choice-close" tabindex="-1"></a></li>')
+								}
+								$('.loader').css('display','none');
+								if (window.location.href.indexOf("/edit/") > -1){
+								    location.reload();
+								}
+							} else if (key !== 'message') {
+								$('#msg').append(key + ' -> ' + data + '<br/>');
+							}else {
+								$('#msg').append(data + '<br/>');
+							}
+						})
+					},
+					error: function (response) {
+						$('#msg').html(response.message); // display error response
+					}
+				});
+			});
+		});
+
+    </script>
+
+{% endblock %}

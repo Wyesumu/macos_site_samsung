@@ -1,0 +1,65 @@
+{% extends 'account.html' %}
+
+  {%block bread%}
+  <ul class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i></a></li>
+    <li><a href="/history">История заказов</a></li>
+  </ul>
+  {%endblock%}
+{%block account_content%}
+  <div id="content" class="col-sm-9">      <h2>Мои заказы</h2>
+    {%if cabinet.user().orders%}
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <td class="text-center">№ заказа</td>
+              <td class="text-center">Изображение</td>
+              <td class="text-left">Наименование товара</td>
+              <td class="text-left">Модель</td>
+              <td class="text-right">Дата заказа</td>
+              <td class="text-right">Цена</td>
+            </tr>
+          </thead>
+          <tbody>
+            {%for order in cabinet.user().orders%}
+            {%for good in order.goods%}
+            <tr id='good_{{good.good.id}}' data-name='{{good.good.name}}' data-href='{{good.good.url}}'>
+              <td class="text-left">
+                <p>{{order.id}}</p>
+              </td>
+              <td class="text-center">
+                {%if good.good.images%}
+                <img id='img_{{good.good.id}}' id="good_image" itemprop="image" class="product-image-zoom" src="{{config['THUMBNAIL_FOLDER']}}/{{good.good.images[0].file_name}}" title="{{good.good.name}}">
+                {%endif%}
+                </td>
+              <td class="text-left">
+                <a href="{{good.good.url}}">{{good.good.name}}</a>
+              </td>
+              <td class="text-left">{{good.good.model}}</td>
+              <td class="text-right">{{order.date}}</td>
+              <td class="text-right">
+                <div class="price">
+                  {%if good.good.sales%}
+                  <b>{{'{0:,}'.format((good.good.price - (good.good.price * good.good.sales[0].sale)/100) | int).replace(',',' ')}} грн.</b>   
+                  <s>
+                      {{'{0:,}'.format(good.good.price).replace(',',' ')}} грн.
+                  </s>
+                  {%else%}
+                  <b>
+                      {{'{0:,}'.format(good.good.price).replace(',',' ')}} грн.
+                  </b>
+                  {%endif%}
+                </div>
+                </td>
+            </tr>
+            {%endfor%}
+            {%endfor%}
+          </tbody>
+        </table>
+      </div>
+      {%else%}
+        <p>Вы еще не сделали заказов</p>
+      {%endif%}
+    </div>
+{%endblock%}

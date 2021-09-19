@@ -1,0 +1,26 @@
+{% extends 'account.html' %}
+
+  {%block bread%}
+  <ul class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i></a></li>
+    <li><a href="/my-account">Личный кабинет</a></li>
+  </ul>
+  {%endblock%}
+{%block account_content%}
+
+<div id="content" class="col-sm-9">
+  <h2>Моя учетная запись</h2>
+  <ul class="list-unstyled">
+    <li><a href="/edit-account">Основные данные</a></li>
+    <li><a href="/change_password">Изменить свой пароль</a></li>
+    <li><a href="/edit_address">Изменить мои адрес</a></li>
+    <li><a href="/wishlist">Изменить закладки</a></li>
+  </ul>
+        <h2>Мои заказы</h2>
+  <ul class="list-unstyled">
+    <li><a href="/history">История заказов</a></li>
+    {#<li><a href="/downloads">Файлы для скачивания</a></li>#}
+    {#<li><a href="https://macos.in.ua/returns/">Заявки на возврат</a></li>#}
+  </ul>
+  </div>
+      {%endblock%}

@@ -1,0 +1,6 @@
+/*Add Css Custom Here*/
+
+.products-list.grid .product-layout .product-item-container .right-block .caption h4,
+#so-groups .form-content .form-box .product-thumb .caption h4{overflow: hidden; #text-overflow: ellipsis;#white-space: nowrap;}
+
+

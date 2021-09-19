@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+{%block content%}
+
+<div class="container">
+  {%block bread%}{%endblock%}
+  
+    <div class="row">                
+      {%block account_content%}{%endblock%}
+    <aside class="col-md-3 col-sm-3 col-xs-12 content-aside right_column sidebar-offcanvas">
+	<span id="close-sidebar" class="fa fa-times"></span>
+			<div class="module">
+  <h3 class="modtitle"><span>Личный кабинет</span></h3>
+  <div class="module-content custom-border">
+    <ul class="list-box">
+      {%if cabinet.get()%}
+      <li><a href="/my-account">Личный кабинет</a></li>
+      <li><a href="/edit-account">Учетная запись</a></li>
+      <li><a href="/change_password">Смена пароля</a></li>
+      {%else%}
+      <li><a href="/login">Авторизация</a> / <a href="/register">Регистрация</a></li>
+      <li><a href="/forgot-password">Напомнить пароль</a></li>
+      {%endif%}
+      <li><a href="/edit_address">Адрес доставки</a></li>
+      <li><a href="/wishlist">Мои закладки</a></li>
+      <li><a href="/history">История заказов</a></li>
+      {#<li><a href="/downloads">Файлы для скачивания</a></li>
+      <li><a href="https://macos.in.ua/returns/">Возврат товара</a></li>#}
+      {%if cabinet.get()%}
+      <li><a href="/exit">Выйти</a></li>
+      {%endif%}
+          </ul>
+  </div>
+</div>	</aside>
+</div>
+</div>
+{%endblock%}

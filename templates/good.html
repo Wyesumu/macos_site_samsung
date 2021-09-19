@@ -1,0 +1,629 @@
+
+{% extends 'layout.html' %}
+{%block title%}<title>{{good.name}}</title>{%endblock%}
+
+<!--<base href="https://macos.in.ua/">--><base href=".">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="width=device-width, initial-scale=1"> <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
+
+{%block content%}
+<!--<script
+  src="https://code.jquery.com/jquery-3.5.1.min.js"
+  integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+  crossorigin="anonymous"></script>-->
+<!--
+<script src="/static/catalog/view/javascript/jquery/jquery-2.1.1.min.js"></script>-->
+<link rel="stylesheet" href="/static/catalog/view/javascript/so_extra_slider/css/style.css">
+<link rel="stylesheet" href="/static/catalog/view/javascript/so_extra_slider/css/css3.css">
+<link rel="stylesheet" href="/static/catalog/view/javascript/so_extra_slider/css/animate.css">
+<link rel="stylesheet" href="/static/catalog/view/javascript/so_extra_slider/css/owl.carousel.css">
+<script src="/static/catalog/view/javascript/soconfig/js/libs.js"></script>
+<script src="/static/catalog/view/javascript/so_extra_slider/js/owl.carousel.js"></script>
+<script src="/static/catalog/view/javascript/soconfig/js/jquery.elevateZoom.js"></script>
+
+	<style type="text/css">body{font-family:Open Sans, sans-serif;}	</style>
+		
+	<style type="text/css">.font-ct, h1, h2, h3, .static-menu a.main-menu, .container-megamenu.vertical .vertical-wrapper ul li > a strong, .container-megamenu.vertical .vertical-wrapper ul.megamenu li .sub-menu .content .static-menu .menu ul li a.main-menu, .horizontal ul.megamenu > li > a, .footertitle, .module h3.modtitle span, .breadcrumb li a, .right-block .caption, .item-title a, .best-seller-custom .item-info, .product-box-desc, .product_page_price .price-new, .list-group-item a{font-family:Raleway, sans-serif;}	</style>
+	<style>
+	.quick-buy-form__info{
+		color: #c2c2c2;
+    		font-family: "Open Sans";
+    		font-size: 12px;
+    		line-height: 1.3;
+	}
+</style>
+
+	<link href="/static/catalog/ico_applet.png" rel="icon">
+
+<div id="wrapper" class="wrapper-full banners-effect-1">   
+
+<div class="container ">
+	 <!-- BREADCRUMB -->
+	<ul class="breadcrumb">
+        <li><a href="/"><i class="fa fa-home"></i></a></li>
+        <li><a href="/{{good.category.name}}">{{good.category.name}}</a></li>
+        <li><a href="{{good.url}}" id="good" data-name="{{good.name}}">{{good.name}}</a></li>
+      </ul>
+</div>
+
+<div class="container product-detail product-full">
+	<div class="row">
+                	
+    <div id="content" class="col-sm-12">
+        <div class="row product-view product-info">
+			<div class="content-product-left class-honizol col-md-5 col-sm-12 col-xs-12 ">
+				<div class="large-image">
+					{%if good.images%}
+					<img id="good_image" itemprop="image" class="product-image-zoom" src="{{config['UPLOAD_FOLDER']}}/{{good.images[0].file_name}}" data-zoom-image="{{config['UPLOAD_FOLDER']}}/{{good.images[0].file_name}}" title="{{good.name}}">
+					{%endif%}
+				</div>
+				{%if good.images%}
+				<div id="thumb-slider" class="full_slider owl-carousel owl2-carousel owl2-theme owl2-loaded">
+					{%for image in good.images%}
+					<a data-index="0" class="img thumbnail active" data-image="{{config['UPLOAD_FOLDER']}}/{{image.file_name}}" title="{{good.name}}">
+						<img src="{{config['THUMBNAIL_FOLDER']}}/{{image.file_name}}" title="{{good.name}}" alt="{{good.name}}">
+					</a>
+					{%endfor%}
+				</div>
+				{%endif%}
+			</div>
+			
+			<div class="content-product-right info-right col-md-7 col-sm-12 col-xs-12">
+				<div class="title-product">
+					<h1>{{good.name}}</h1>
+				</div>
+				 <!-- Review ---->
+				 					<div class="box-review">
+					   <div class="ratings">
+						  <div class="rating-box">
+						  	{%for i in range(1,6)%}
+					    		{% if i <= good.get_avg_ratig() %}
+					    			<span class="fa fa-stack">
+					                  	<i class="fa fa-star fa-stack-2x"></i>
+					                  	<i class="fa fa-star-o fa-stack-2x"></i>
+					                  </span>
+					            {%else%}
+					            	<span class="fa fa-stack">
+					                  	<i class="fa fa-star-o fa-stack-2x"></i>
+					                  </span>
+					            {%endif%}
+				    		{%endfor%}
+						  </div>
+					  </div>
+			 
+					   <a class="reviews_button" href="/" onclick="$(&#39;a[href=\&#39;#tab-review\&#39;]&#39).trigger(&#39;click&#39;); return false;">{{good.get_rev_len()}} отзывов</a> | <a class="write_review_button" href="https://macos.in.ua/" onclick="$(&#39;a[href=\&#39;#tab-review\&#39;]&#39;).trigger(&#39;click&#39;); return false;">Написать отзыв</a>
+					</div>
+								
+			
+								<div class="product-label">
+					{% if good.price %}
+															<div class="product_page_price price" itemprop="offerDetails" itemscope="" itemtype="http://data-vocabulary.org/Offer">
+						 				{%if good.sales%}
+                                        <span class="price-new">{{'{0:,}'.format((good.price - (good.price * good.sales[0].sale)/100) | int).replace(',',' ')}} грн.</span>   
+                                        <span class="price-old">
+                                            {{'{0:,}'.format(good.price).replace(',',' ')}} грн.
+                                        </span>
+                                        {%else%}
+                                        <span class="price-new">
+                                            {{'{0:,}'.format(good.price).replace(',',' ')}} грн.
+                                        </span>
+                                       	{%endif%}
+
+				        												
+											</div>
+				{% endif %}
+											
+				</div>
+				<div class="product-box-desc">
+					<div class="inner-box-desc">
+														<div class="brand"><span>Производитель:</span><a href="https://macos.in.ua/apple.html">{{good.manufacture}}</a></div>
+																		<div class="model"><span>Код товара:</span> {{good.name}}</div>
+																		<div class="stock">
+																			<span> Наличие: </span> 
+																			
+																			{%if good.in_stock%}
+																			<i class="fa fa-check-square-o"></i>  
+																			В наличии
+																			{%else%}
+																			<i class="fa fa-minus-square-o"></i> 
+																			Нет в наличии
+																			{%endif%} 
+																		</div>	
+																		<div class="stock">
+                                                                                                                                                        <span> Под заказ: </span>
+
+                                                                                                                                                        {%if good.by_request%}
+                                                                                                                                                        <i class="fa fa-check-square-o"></i>
+                                                                                                                                                        Да
+                                                                                                                                                        {%else%}
+                                                                                                                                                        <i class="fa fa-minus-square-o"></i>
+                                                                                                                                                        Нет
+                                                                                                                                                        {%endif%}
+                                                                                                                                                </div>
+
+					</div>		
+				</div>
+				
+				<div class="short_description form-group">
+					<h3>краткое описание</h3> {{good.details[:2000] | striptags}}...
+				</div>
+								
+				
+			 
+				<!--Countdown box-->
+				{%if good.sales%}
+				<div class="countdown_box">
+                    <div class="countdown_inner">
+                        <div class="title ">До конца акции осталось:</div>
+                         <script type="text/javascript">
+                         $(document).ready(function () {
+                            var countDownDate = Date.parse('{{good.sales[0].end_date.strftime("%Y/%m/%d %H:%M:%S")}}');
+
+                            // Update the count down every 1 second
+                            var x = setInterval(function() {
+
+                              // Get today's date and time
+                              var now = new Date().getTime();
+
+                              // Find the distance between now and the count down date
+                              var distance = countDownDate - now;
+
+                              // Time calculations for days, hours, minutes and seconds
+                              var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                              var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                              var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                              var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                              // Display the result in the element with id="demo"
+                              document.getElementsByClassName("defaultCountdown-{{good.sales[0].id}}")[0].innerHTML = '<div class="time-item time-day"><div class="num-time">'+days+'</div><div class="name-time">Дней </div></div>'
+                                   + '<div class="time-item time-hour"><div class="num-time">'+hours+'</div><div class="name-time">Часа </div></div>'
+                                   + '<div class="time-item time-min"><div class="num-time">'+minutes+'</div><div class="name-time">Мин </div></div>'
+                                   + '<div class="time-item time-sec"><div class="num-time">'+seconds+'</div><div class="name-time">Сек </div></div>';
+
+                              
+
+                              // If the count down is finished, write some text
+                              
+                            }, 1000);
+                        })
+                        </script>
+                        <div class="defaultCountdown-{{good.sales[0].id}}"><div class="time-item time-day"><div class="num-time">14</div><div class="name-time">Дней </div></div><div class="time-item time-hour"><div class="num-time">01</div><div class="name-time">Часа </div></div><div class="time-item time-min"><div class="num-time">12</div><div class="name-time">Мин </div></div><div class="time-item time-sec"><div class="num-time">04</div><div class="name-time">Сек </div></div></div>
+                    </div>
+                    
+                </div>
+                {%endif%}
+				<!--End countdown box-->
+			
+				<div id="product">
+										
+					<div class="box-cart cart clearfix">
+												
+						<!-- QUALYTY -->
+						<div class="form-group box-info-product">
+						    <div class="option quantity">
+							  <div class="input-group quantity-control" unselectable="on" style="user-select: none;">
+								  <label>Кол-во</label>
+								  <input class="form-control" type="number" min="1" step="1" style="width: 50px;" id="good_amount" name="quantity" value="1">
+								  <input type="hidden" name="product_id" value="136">
+							  </div>
+						    </div>
+						   <!-- CART -->
+						   <div class="cart">
+								<input type="button" {%if good.in_stock%}onclick="AddToCart({{good.id}})"{%else%}class="btn btn-mega btn-lg disabled"{%endif%} data-toggle="tooltip" title="" value="Купить" data-loading-text="Загрузка..." id="button-cart" class="btn btn-mega btn-lg" data-original-title="Купить">
+							</div>
+							<div class="add-to-links wish_comp">
+								<ul class="blank">
+									<li class="wishlist">
+										<a class="icon" data-toggle="tooltip" title="" onclick="AddToWishlist({{good.id}})" data-original-title="В закладки"><i style="margin-top:30%" class="fa fa-heart-o"></i></a>
+									</li>
+									<li class="compare">
+										<a class="icon" data-toggle="tooltip" title="" onclick="AddToCompare({{good.id}})" data-original-title="В сравнение"><i style="margin-top:30%" class="fa fa-retweet"></i></a>
+									</li>
+
+								</ul>
+							</div>
+							
+						</div>
+						
+						
+					</div>
+			
+			<br>
+<form class="quick-buy-form">
+	<input type='text' hidden name="compact">
+	<div class="quick-buy-form__line">
+		<input id='fast_phone' type="tel" name="telephone" placeholder="+38(___) ___-__-__" class="quick-buy-form__input">
+		<a onclick='fast_confirm()' class="btn quick-buy-form__submit">Купить в 1 клик</a>
+	</div>
+	<div class="quick-buy-form__info">
+		<p>Введите номер телефона и наш менеджер свяжется с Вами для обсуждения деталей</p>
+	</div>
+</form>
+<div class="artikul"><span style="text-transform: uppercase; font-size: 14px; color: #222; font-weight: 700;">Доставка:</span> по всей Украине <span style="color: #ff5c00">Новой Почтой</span></div>
+<div class="artikul"><span style="text-transform: uppercase; font-size: 14px; color: #222; font-weight: 700;">Оплата:</span> Наложенный Платеж <span style="color: #ff5c00">(после осмотра)</span></div>
+<div class="artikul"><span style="text-transform: uppercase; font-size: 14px; color: #222; font-weight: 700;">Гарантия:</span> 30 дней <span style="color: #ff5c00">(официальная + от магазина)</span></div>
+
+<br>Цена действует только при условии заказа на сайте. Стоимость в наших магазинах может отличаться
+
+						
+				
+			</div><!-- end box info product -->
+
+            </div>
+						
+		</div>
+
+						<div class="row product-bottom">
+						
+			<div class="col-xs-12">
+												<div class="producttab ">
+					<div class="tabsslider   col-xs-12">
+												<ul class="nav nav-tabs font-sn">
+														<li class="active"><a data-toggle="tab" href="#tab-1">Описание</a></li>
+														
+							
+							
+														
+														
+														<li class="item_nonactive"><a data-toggle="tab" href="#tab-review">Отзывы ({{good.get_rev_len()}})</a></li>
+														
+						</ul>
+											
+									<div class="tab-content  col-xs-12">
+																<div id="tab-1" class="tab-pane fade active in">
+									<div class="leftrec ">
+										{{good.details | safe}}
+										<br>
+										*информация о товаре может изменяться или дополняться производителем без уведомления. 
+									</div>								</div>
+								
+								
+
+								<div id="tab-review" class="tab-pane">
+									<form action="/new_review?backurl={{good.url}}&good_id={{good.id}}" method="POST">
+										<div id="review">
+											{%if good.reviews%}
+												{%for review in good.reviews%}
+												{%if review.is_published %}
+												<table class="table table-striped table-bordered">
+												  <tbody>
+												  	<tr>
+												     <td style="width: 50%;"><strong>{{review.user_name}}</strong></td>
+												     <td class="text-right">{{review.date.strftime("%d/%m/%Y")}}</td>
+												    </tr>
+												   <tr>
+												    <td colspan="2">
+												    	<p>
+												    		{{review.comment}}
+												    	</p>
+												    		{%for i in range(1,6)%}
+													    		{% if i <= review.rate_id %}
+													    			<span class="fa fa-stack">
+													                  	<i class="fa fa-star fa-stack-2x"></i>
+													                  	<i class="fa fa-star-o fa-stack-2x"></i>
+													                  </span>
+													            {%else%}
+													            	<span class="fa fa-stack">
+													                  	<i class="fa fa-star-o fa-stack-2x"></i>
+													                  </span>
+													            {%endif%}
+												    		{%endfor%}
+												            </td>
+												   </tr>
+												  </tbody>
+												</table>
+												{%endif%}
+												{%endfor%}
+											{%else%}
+											<p>Нет отзывов об этом товаре.</p>
+											{%endif%}
+											
+										</div>
+										<h2 id="review-title">Написать отзыв</h2>
+																					<div class="contacts-form">
+												<div class="form-group">
+													<span class="icon icon-user"></span>
+													<input type="text" name="user_name" class="form-control" value="Ваше имя:">
+												</div>
+												<div class="form-group">
+													<span class="icon icon-bubbles-2"></span>
+													<textarea class="form-control" name="text">Ваш отзыв</textarea>
+												</div>
+												<div class="form-group has-error">
+												<span style="font-size: 11px;"><span class="text-danger">Внимание:</span> HTML не поддерживается! Используйте обычный текст!</span>
+												<br>
+												<br>
+												<b>Рейтинг</b> <span>Плохо</span>&nbsp;
+												<input type="radio" name="rating" value="1">
+												&nbsp;
+												<input type="radio" name="rating" value="2">
+												&nbsp;
+												<input type="radio" name="rating" value="3">
+												&nbsp;
+												<input type="radio" name="rating" value="4">
+												&nbsp;
+												<input type="radio" name="rating" value="5">
+												&nbsp;<span>Хорошо</span><br>
+												</div>
+												<fieldset>
+  <legend class="hidden">Captcha</legend>
+  <div class="form-group required">
+        <div class="col-sm-12">
+      <input type="text" name="captcha" id="input-captcha" class="form-control" placeholder="Введите код*">
+      {{captcha()}}
+          </div>
+      </div>
+</fieldset>
+												<div class="buttons clearfix">
+												<button id="button-review" style="float: right;visibility: visible;" class="btn btn-info">Продолжить</button></div>
+
+											</div>
+																			</form>
+
+								</div>
+								
+								
+								
+							</div>
+				  </div>
+				</div>
+								
+															</div>
+						<div class="bottom-product clearfix">
+
+				<div class="tab-content">
+				  	<div id="product-related" class="tab-pane fade in active">
+				   		
+
+				  	</div>
+				  	<div id="product-upsell" class="tab-pane fade ">
+				   		<div class="module so-extraslider-ltr ex_upsell custom-extra clearfix">
+	
+<div class="modcontent">
+	Has no item to show!</div> <!-- /.modcontent -->
+
+</div>
+				  	</div>
+				</div>
+			</div>
+			
+						<script type="text/javascript">
+			$(document).ready(function() {
+				//var $j = jQuery.noConflict();
+				var zoomCollection = '.large-image img';
+				$( zoomCollection ).elevateZoom({
+										zoomType        : "inner",
+										lensSize    :"250",
+					easing:true,
+					gallery:'thumb-slider',
+					cursor: 'pointer',
+					galleryActiveClass: "active"
+				});
+
+				$('.large-image img').magnificPopup({
+					items: [
+					{%for image in good.images%}
+					{src: '{{config['UPLOAD_FOLDER']}}/{{image.file_name}}'},
+					{%endfor%}
+					],
+					gallery: { enabled: true, preload: [0,2] },
+					type: 'image',
+					mainClass: 'mfp-fade',
+					callbacks: {
+						open: function() {
+														var activeIndex = 0;
+														var magnificPopup = $.magnificPopup.instance;
+							magnificPopup.goTo(activeIndex);
+						}
+					}
+				});
+				
+			});
+					
+			</script>
+			<script type="text/javascript"><!--
+							$(function ($) {
+								var $nav = $("#thumb-slider");
+								
+								$nav.each(function () {
+									$(this).owlCarousel2({
+										nav:true,
+										dots: false,
+										slideBy: 1,
+										margin:10,
+										navText: ['<i class="fa fa-caret-left"></i>','<i class="fa fa-caret-right"></i>'],
+																				responsive:{
+											0:{
+												items:2
+											},
+											600:{
+												items:3
+											},
+											1000:{
+												items:5
+											}
+										}
+									});
+								})
+								
+							});
+						</script>
+					</div>
+		
+    </div>
+	
+					
+	</div>
+</div>
+
+
+	
+		
+	
+    </div>
+    <div class="zoomContainer" style="-webkit-transform: translateZ(0);position:absolute;left:97px;top:325px;height:466px;width:466px;">
+    	<div class="zoomWindowContainer" style="width: 400px;">
+    	</div>
+    </div>
+    <div id="jGrowl" class="top-right jGrowl">
+	<div class="jGrowl-notification"></div>
+	<div id="added-to-cart-popup" class="jGrowl-notification alert ui-state-highlight ui-corner-all success" style="display: none;">
+		<button class="jGrowl-close" onclick="$('#added-to-cart-popup').css({'display':'none'})">×</button>
+		<div class="jGrowl-header">Товар добавлен в корзину</div>
+		<div class="jGrowl-message">
+			<img id="pop_up_img" src="https://macos.in.ua/image/cache/catalog/airpods_2-74x74.jpg" alt="">
+			<h3>
+				<a id="pop_up_link" href=""></a> добавлен в <a href="https://macos.in.ua/cart/">корзину</a>!
+			</h3>
+		</div>
+	</div>
+</div>
+
+<div id="jGrowl" class="top-right jGrowl">
+    <div class="jGrowl-notification"></div>
+    <div id="wl-popup" class="jGrowl-notification alert ui-state-highlight ui-corner-all success" style="display: none;">
+        <button class="jGrowl-close" onclick="$('#wl-popup').css({'display':'none'})">×</button>
+        <div class="jGrowl-header">Товар добавлен в избранное</div>
+        <div class="jGrowl-message">
+            <img id="wl_pop_up_img" src="https://macos.in.ua/image/cache/catalog/airpods_2-74x74.jpg" alt="">
+            <h3>
+                <a id="wl_pop_up_link" href=""></a> добавлен в <a href="/wishlist">избранное</a>!
+            </h3>
+        </div>
+    </div>
+</div>
+
+<div id="jGrowl" class="top-right jGrowl">
+    <div class="jGrowl-notification"></div>
+    <div id="cp-popup" class="jGrowl-notification alert ui-state-highlight ui-corner-all success" style="display: none;">
+        <button class="jGrowl-close" onclick="$('#cp-popup').css({'display':'none'})">×</button>
+        <div class="jGrowl-header">Товар добавлен в избранное</div>
+        <div class="jGrowl-message">
+            <img id="cp_pop_up_img" src="https://macos.in.ua/image/cache/catalog/airpods_2-74x74.jpg" alt="">
+            <h3>
+                <a id="cp_pop_up_link" href=""></a> добавлен в <a href="/compare">сравнение</a>!
+            </h3>
+        </div>
+    </div>
+</div>
+{%endblock%}
+{%block script%}
+<script type="text/javascript">
+
+   function sendMessage(chat_id, message){
+    var access_token = '{{ settings['bot_token'] }}'
+    $.ajax({
+      url: 'https://api.telegram.org/bot' + access_token + '/sendMessage',
+      method: 'POST',
+      data: {'chat_id': chat_id,'text': message},
+      success: function(response) {
+        console.log(response);
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        console.log(xhr.status);
+        console.log(thrownError);
+      }
+    });
+   }
+
+    function fast_confirm(){
+        let user = '{{ settings['user_id'] }}';
+        let message = 'Товар: {{ good.name }}, Телефон: ' + $('#fast_phone').val();
+        sendMessage(user, message);
+	$('#pop_up_img').attr({'src':$('#good_image').attr('src')})
+        $('#pop_up_link').text($('#good').data('name'))
+        $('#pop_up_link').attr({'href':$('#good').data('href')})
+
+        $('#added-to-cart-popup').css({'display':'block'})
+
+        setTimeout(function(){
+            $('#added-to-cart-popup').fadeOut();
+        }, 2000);
+    }
+
+    function AddToWishlist(good_id){
+        var data = {'good_id':good_id};
+        $('#wl_pop_up_img').attr({'src':$('#good_image').data('src')})
+        $('#wl_pop_up_link').text($('#good').data('name'))
+        $('#wl_pop_up_link').attr({'href':$('#good').data('href')})
+
+        $('#wl-popup').css({'display':'block'})
+
+        setTimeout(function(){
+            $('#wl-popup').fadeOut();
+        }, 2000);
+        $.ajax({
+            type : "POST",
+            url : "{{ url_for('add_good_wishlist')}}",
+            data: JSON.stringify(data, null, '\t'),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+              console.log(result);
+            }
+        });
+        return false;
+    }
+
+    function AddToCompare(good_id){
+        var data = {'good_id':good_id};
+        $('#cp_pop_up_img').attr({'src':$('#good_image').data('src')})
+        $('#cp_pop_up_link').text($('#good').data('name'))
+        $('#cp_pop_up_link').attr({'href':$('#good').data('href')})
+
+        $('#cp-popup').css({'display':'block'})
+
+        setTimeout(function(){
+            $('#cp-popup').fadeOut();
+        }, 2000);
+        $.ajax({
+            type : "POST",
+            url : "{{ url_for('add_good_compare')}}",
+            data: JSON.stringify(data, null, '\t'),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+              console.log(result);
+            }
+        });
+        return false;
+    }
+
+	function AddToCart(good_id) {
+        var data = {'good_id':good_id, 'amount':$('#good_amount').val()};
+
+        $('#pop_up_img').attr({'src':$('#good_image').attr('src')})
+        $('#pop_up_link').text($('#good').data('name'))
+        $('#pop_up_link').attr({'href':$('#good').data('href')})
+
+        $('#added-to-cart-popup').css({'display':'block'})
+
+        setTimeout(function(){
+            $('#added-to-cart-popup').fadeOut();
+        }, 2000);
+
+        $.ajax({
+            type : "POST",
+            url : "{{ url_for('add_good_cart')}}",
+            data: JSON.stringify(data, null, '\t'),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+              console.log(result);
+              result = JSON.parse(result);
+              $("#total_cart_goods").text(result.good_amount);
+              $('#cart_container').empty()
+              let cart = result['cart']
+              let element = ''
+              for (i in cart){
+              	let good = cart[i]
+              	let html = '<tr><td class="text-center size-img-cart"><a href="'+good['model']['url']+'"><img src="'+good['model']['img']+'" alt="'+good['model']['name']+'"></a></td><td class="text-left"><a class="cart_product_name" href="'+good['model']['url']+'">'+good['model']['name']+'</a></td><td class="text-center">x '+good['amount']+'</td><td class="text-center">'+good['price']+' грн.</td><td class="text-right"><form action="/pop_cart_good?id='+good['good_id']+'&backurl={{request.path[1:]}}" method="POST"><label><input type="submit" style="display: none;" /><div style="cursor: pointer;" class="fa fa-trash-o"></div></label></form></td></tr>'
+              	element = element + html;
+              }
+              $('#cart_container').html(element);
+              if($('#finish_quick_buy').length){
+                $('#finish_quick_buy').click();
+              }
+            }
+        });
+        return false;
+    };
+</script>
+{%endblock%}

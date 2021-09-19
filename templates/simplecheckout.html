@@ -1,0 +1,365 @@
+{% extends 'layout.html' %}
+{%block content%}
+<style type="text/css">
+  .checkout-heading{
+    background-color: #f5f5f5;
+    border-color: #ddd;
+    color: #333;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+  }
+</style>
+
+<div class="container">
+  <ul class="breadcrumb">
+        <li><a href="/"><i class="fa fa-home"></i></a></li>
+        <li><a href="/cart">Корзина покупок</a></li>
+      </ul>
+      {% if cart.__repr__() %}
+        <div class="row" style="margin-bottom: 5%;">
+          <div id="content" class="simplecheckout-step" class="col-sm-12">
+            <h1>Корзина покупок</h1>
+      <div class='simplecheckout-block'>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <td class="text-center">Изображение</td>
+                <td class="text-left">Наименование товара</td>
+                <td class="text-left">Модель</td>
+                <td class="text-left">Кол-во</td>
+                <td class="text-right">Цена за шт.</td>
+                <td class="text-right">Всего</td>
+              </tr>
+            </thead>
+            <tbody>
+              {%for good in cart.__repr__()%}
+              <tr>
+                <td class="text-center"> 
+                  <a href="/catalog/{{good['good'].url}}">
+                    {% if good['good'].images %}
+                      <img src="{{config['THUMBNAIL_FOLDER']}}/{{good['good'].images[0].file_name}}" alt="{{good['good'].name}}" style="height: 74px" class="img-thumbnail">
+                    {%endif%}
+                  </a>
+                  </td>
+                <td class="text-left"><a href="/catalog/{{good['good'].url}}">{{good['good'].name}}</a>
+                                                                        </td>
+                <td class="text-left">{{good['good'].model}}</td>
+                <td class="text-left">
+                  <div class="input-group btn-block" style="max-width: 200px;">
+                    <input type="number" id="count" step='1' min='1' data-id="{{good['good'].id}}" value="{{good['amount']}}" size="1" class="form-control">
+                    <span class="input-group-btn">
+                    <form action="/pop_cart_good?id={{good['good'].id}}&backurl=/cart" method="POST">
+                      <button type="submit" class="btn btn-danger" data-original-title="Удалить"><i class="fa fa-times-circle"></i></button>
+                    </form>
+                    </span>
+                  
+                  </div></td>
+               <td class="text-right">
+                {%if good['good'].sales%}
+                <span class="price-new">{{'{0:,}'.format((good['good'].price - (good['good'].price * good['good'].sales[0].sale)/100) | int).replace(',',' ')}} грн.</span>   
+                <span class="price-old" style="text-decoration: line-through;">
+                    {{'{0:,}'.format(good['good'].price).replace(',',' ')}} грн.
+                </span>
+                {%else%}
+                <span class="price-new">
+                    {{'{0:,}'.format(good['good'].price).replace(',',' ')}} грн.
+                </span>
+                {%endif%}
+              </td>
+                <td class="text-right" id="price_{{good['good'].id}}">{{'{0:,}'.format(good['price']).replace(',',' ')}} грн.</td>
+              </tr>
+              {%endfor%}
+            </tbody>
+          </table>
+        </div>
+            <br>
+      <div class="row">
+        <div class="col-sm-4 col-sm-offset-8">
+          <table class="table table-bordered">
+            <tbody>
+              <tr>
+                <td class="text-right"><strong>Итого:</strong></td>
+                <td class="text-right" id="summ">{{'{0:,}'.format(summ).replace(',',' ')}} грн.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <form action="/confirm_order{%if cabinet.get()%}?user_id={{cabinet.user().id}}{%endif%}" method="POST">
+      <div class="simplecheckout-left-column" style="width: 50%; float: left;"><div class="simplecheckout-block" id="simplecheckout_customer">
+    <div class="checkout-heading panel-heading"><span>Покупатель</span></div>
+    <div class="simplecheckout-block-content">
+                  <fieldset class="form-horizontal">          <div class="form-group required row-customer_firstname">
+    <label class="control-label col-sm-4" for="customer_firstname">Фамилия Имя Отчество </label>
+    <div class="col-sm-8">
+              <input class="form-control" type="text" name="firstname" id="customer_firstname" value="{{cabinet.user().name}}" placeholder="" data-reload-payment-form="true">
+                    <div class="simplecheckout-rule-group" data-for="customer_firstname">
+                      <div style="display:none;" data-for="customer_firstname" data-rule="byLength" class="simplecheckout-error-text simplecheckout-rule" data-length-min="1" data-length-max="40" data-required="true">Имя должно быть от 1 до 40 символов!</div>
+                  </div>
+                </div>
+ </div>          <div class="form-group required row-customer_telephone">
+    <label class="control-label col-sm-4" for="customer_telephone">Телефон</label>
+    <div class="col-sm-8">
+              <input class="form-control" type="tel" name="telephone" id="customer_telephone" value="{{cabinet.user().phone}}" placeholder="" data-mask="+38 (999) 999-99-99" data-reload-payment-form="true">
+                      </div>
+ </div>          <div class="form-group  row-customer_email">
+    <label class="control-label col-sm-4" for="customer_email">Email</label>
+    <div class="col-sm-8">
+              <input class="form-control" type="email" name="email" id="customer_email" value="{{cabinet.user().email}}" placeholder="" data-reload-payment-form="true">
+                    <div class="simplecheckout-rule-group" data-for="customer_email">
+                      <div style="display:none;" data-for="customer_email" data-rule="api" class="simplecheckout-error-text simplecheckout-rule" data-method="checkEmailForUniqueness" data-filter="customer_register" data-filter-value="0">Адрес уже зарегистрирован!</div>
+                      <div style="display:none;" data-for="customer_email" data-rule="regexp" class="simplecheckout-error-text simplecheckout-rule" data-regexp=".+@.+">Некорректный адрес электронной почты!</div>
+                  </div>
+                </div>
+ </div>          </fieldset>      </div>
+</div><div class="simplecheckout-block" id="simplecheckout_shipping_address">
+
+    <script type="text/javascript">
+      $.ajax({
+          type: 'POST',
+          dataType: 'json',
+          url: 'https://api.novaposhta.ua/v2.0/json/',
+          data: JSON.stringify({
+            modelName: 'Address',
+            calledMethod: 'getAreas',
+            methodProperties: {},
+            apiKey: '32e9a9aae233998d04321bbe39b7e0c5'
+          }),
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          xhrFields: {
+            withCredentials: false 
+          },
+          success: function(texts) {
+            
+            texts = texts['data'];
+            for (let i in texts){
+              $("#shipping_address_country_id").append($('<option>', {value: texts[i]['Ref'], text: texts[i]['Description']}));
+            }
+          },
+        });
+
+      function search_city(){
+        $('#shipping_address_country_id_name').val($('#shipping_address_country_id option:selected').text())
+        $.ajax({
+          type: 'POST',
+          dataType: 'json',
+          url: 'https://api.novaposhta.ua/v2.0/json/',
+          data: JSON.stringify({
+            modelName: 'Address',
+            calledMethod: 'getCities',
+            methodProperties: {
+              Warehouse: 1,
+              AreaRef: $('#shipping_address_country_id').val()
+            },
+
+            apiKey: '32e9a9aae233998d04321bbe39b7e0c5'
+          }),
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          xhrFields: {
+            withCredentials: false 
+          },
+          success: function(texts) {
+            $("#shipping_address_field20").empty()
+            $("#shipping_address_city").empty()
+            
+            texts = texts['data'];
+            for (let i in texts){
+              $("#shipping_address_city").append($('<option>', {value: texts[i]['Ref'], text: texts[i]['Description']}));
+            }
+          },
+        });
+      }
+      function search_dep(){
+        $('#shipping_address_city_name').val($('#shipping_address_city option:selected').text())
+        $.ajax({
+          type: 'POST',
+          dataType: 'json',
+          url: 'https://api.novaposhta.ua/v2.0/json/',
+          data: JSON.stringify({
+            modelName: 'Address',
+            calledMethod: 'getWarehouses',
+            methodProperties: {
+              Warehouse: 1,
+              CityRef: $('#shipping_address_city').val()
+            },
+
+            apiKey: '32e9a9aae233998d04321bbe39b7e0c5'
+          }),
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          xhrFields: {
+            withCredentials: false 
+          },
+          success: function(texts) {
+            $("#shipping_address_field20").empty()
+            
+            texts = texts['data'];
+            for (let i in texts){
+              $("#shipping_address_field20").append($('<option>', {value: '[№ ' + texts[i]['Number'] + '] '+ texts[i]['Description'], text: '[№ ' + texts[i]['Number'] + '] '+ texts[i]['Description']}));
+            }
+          },
+        });
+      }
+    </script>
+
+      <div class="checkout-heading panel-heading">Адрес доставки</div>
+    <div class="simplecheckout-block-content">
+          <fieldset class="form-horizontal">          <div class="form-group  row-shipping_address_country_id">
+    <label class="control-label col-sm-4" for="shipping_address_country_id">Область</label>
+    <div class="col-sm-8">
+              <input id='shipping_address_country_id_name' style='display: none' name="country">
+              <select class="form-control" onchange='search_city()' id="shipping_address_country_id" data-theme="bootstrap" data-onchange="reloadAll">
+                <option value=""> --- Выберите --- </option>
+                  </select>
+                    <div class="simplecheckout-rule-group" data-for="shipping_address_country_id">
+                      <div style="display:none;" data-for="shipping_address_country_id" data-rule="notEmpty" class="simplecheckout-error-text simplecheckout-rule" data-not-empty="1">Выберите область!</div>
+                  </div>
+                </div>
+ </div>          <div class="form-group  row-shipping_address_zone_id">
+    <label class="control-label col-sm-4" for="shipping_address_zone_id">Город</label>
+    <div class="col-sm-8">
+              <input id='shipping_address_city_name' style='display: none' name="shipping_address_city">
+              <select onchange='search_dep()' class="form-control" type="text"  id="shipping_address_city" placeholder="" data-reload-payment-form="true" data-original-title="" title="">
+
+              </select>
+          </div>
+                    <div class="simplecheckout-rule-group" data-for="shipping_address_zone_id">
+                      <div style="display:none;" data-for="shipping_address_zone_id" data-rule="notEmpty" class="simplecheckout-error-text simplecheckout-rule" data-not-empty="1">Выберите город!</div>
+                  </div>
+                </div>
+                <div class="form-group  row-shipping_address_field20">
+    <label class="control-label col-sm-4" id='shipping_address_field20_label' for="shipping_address_field20">Отделение Новой почты</label>
+    <div class="col-sm-8">
+              <select class="form-control" type="text" id="shipping_address_field20" name="shipping_address" placeholder="" data-reload-payment-form="true" data-original-title="" title=""></select>
+          </div>
+ </div>
+ </div>                    </fieldset>              </div>
+</div>
+      <div class="simplecheckout-right-column" style="float: right; width: 40%"><div class="simplecheckout-block" id="simplecheckout_shipping">
+            <div class="checkout-heading panel-heading">Способ доставки</div>
+        <div class="alert alert-danger simplecheckout-warning-block" style="display:none">Вы должны выбрать способ доставки!</div>
+    <div class="simplecheckout-block-content">
+                    
+                                                                                                                                <div class="radio">
+                                <label for="novaposhta">
+                                    <input checked type="radio" data-onchange="reloadAll" name="shipping_method" value="Новая почта" id="novaposhta" onclick='make_address_select()'>
+                                                                        <b>Доставка на отделение "Новая почта"&nbsp;</b><div>(Оплата после получения "<b>Наложенный Платеж</b>" )</div>                                </label>
+                                    <script type="text/javascript">
+                                      function make_address_select(){
+                                        $('#shipping_address_field20').replaceWith('<select class="form-control" type="text" id="shipping_address_field20" name="shipping_address"></select>');
+                                        $('#shipping_address_field20_label').html('Отделение Новой почты')
+                                      }
+                                    </script>
+
+                                {%if settings['courier_fields'] == '1'%}
+                                <label for="courier">
+                                    <input type="radio" data-onchange="reloadAll" name="shipping_method" value="Курьером" id="courier" onclick='make_address_text()'>
+                                                                        <b>Доставка на адрес курьером&nbsp;</b>                                </label>
+
+                                    <script type="text/javascript">
+                                      function make_address_text(){
+                                        $('#shipping_address_field20').replaceWith('<input class="form-control" type="text" id="shipping_address_field20" name="shipping_address">');
+                                        $('#shipping_address_field20_label').html('Адрес доставки')
+                                      }
+                                    </script>
+                                {%endif%}
+                            </div>
+                                                                                                                                                                                                                                    <div class="radio">
+                                
+                            </div>
+                                                                                                                    
+                        <input type="hidden" name="shipping_method_current" value="pickup.pickup">
+            <input type="hidden" name="shipping_method_checked" value="pickup.pickup">
+                            </div>
+</div><div class="simplecheckout-block" id="simplecheckout_payment">
+            <div class="checkout-heading panel-heading">Способ оплаты</div>
+        <div class="alert alert-danger simplecheckout-warning-block" style="display:none">Вы должны выбрать способ оплаты!</div>
+    <div class="simplecheckout-block-content">
+                                                        <div class="radio">
+                        <label for="cod">
+                            <input type="radio" data-onchange="reloadAll" name="payment_method" value="Оплата после получения" id="cod" checked="checked" onclick="$('#card_data').css('display', 'none')">
+                            Оплата после получения (<strong>Наложенный Платеж</strong>)                                                                                                                </label>
+                    </div>
+                    {%if settings['courier_fields'] == '1'%}
+                    <div class="radio">
+                        <label for="card">
+                            <input type="radio" data-onchange="reloadAll" name="payment_method" value="Онлайн оплата" id="card" onclick="$('#card_data').css('display', 'block')">
+                            Онлайн оплата картой (<strong>Visa/Master Card</strong>)                                                                                                                </label>
+                    </div>
+                    <div id="card_data" class="simplecheckout-block" id="simplecheckout_comment" style="margin-bottom: 15px; display: none;">
+                    <div class="simplecheckout-block-content">
+                      <input class="form-control" type="text" name="card_data"  placeholder="{{settings['card_placeholder']}}">
+                      </div>
+                    </div>
+                    {%endif%}
+                                                                                
+            <input type="hidden" name="payment_method_checked" value="">
+                            </div>
+</div><div class="simplecheckout-block" id="simplecheckout_comment">
+          <div class="checkout-heading panel-heading">Комментарий</div>
+        <div class="simplecheckout-block-content">
+      <textarea class="form-control" name="comment" id="comment" placeholder="Комментарий" data-reload-payment-form="true"></textarea>
+    </div>
+</div></div>
+<div class="simplecheckout-right-column" style="float: right; width: 40%; margin-top: 1%">
+{{ captcha() }}
+    <input type="text" name="captcha">
+</div>
+            <div class="simplecheckout-button-block buttons" id="buttons">
+                    <div class="simplecheckout-button-right">
+                      
+                            <button class="button btn-primary button_oc btn" style="float: right; margin-top: 25px" type="submit" data-classes="pink-bttn-normal" id="order-auth-button">
+                                Оформить заказ
+                                <span class="button__romb"></span>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="simplecheckout-button-left">
+                                                                    </div>
+                </div>
+      </div>
+      </div>
+      </div>
+    </div>
+    {%else%}
+    <h1>Корзина пуста</h1>
+    {%endif%}
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $(document).on("change", "#count", function (){
+            var good_id = $(this).data('id');
+            updateInCart(good_id, $(this).val());
+        });
+    })
+
+    function updateInCart(good_id, good_amount) {
+        console.log(good_amount)
+        var data = {'good_id': good_id, 'amount': good_amount};
+
+        $.ajax({
+            type : "POST",
+            url : "{{ url_for('update_good_cart')}}",
+            data: JSON.stringify(data, null, '\t'),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+                var result = JSON.parse(result);
+                console.log(result);
+                var good = result["updated_good"];
+                $('#price_'+good["good_id"]).text(parseInt(good["price"]).toLocaleString() + ' грн.');
+                $('#summ').text(parseInt(result["summ"]).toLocaleString() + ' грн.');
+            }
+        });
+    };
+</script>
+
+{%endblock%}

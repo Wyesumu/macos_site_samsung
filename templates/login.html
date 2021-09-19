@@ -1,0 +1,39 @@
+{% extends 'account.html' %}
+
+  {%block bread%}
+  <ul class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i></a></li>
+    <li><a href="/my-account">Личный кабинет</a></li>
+    <li><a href="/login">Авторизация</a></li>
+  </ul>
+  {%endblock%}
+{%block account_content%}
+      <div id="content" class="col-sm-9">
+        <div class="row">
+        <div class="col-sm-6">
+          <div class="well">
+            <h2>Новый пользователь</h2>
+            <p><strong>Регистрация</strong></p>
+            <p>Создание учетной записи поможет делать следующие покупки быстрее (не надо будет снова вводить адрес и контактную информацию), видеть состояние заказа, а также видеть заказы, сделанные ранее. Вы также сможете накапливать при покупках призовые баллы (на них тоже можно что-то купить), а постоянным покупателям мы предлагаем систему скидок.</p>
+            <a href="/register" class="btn btn-primary">Продолжить</a></div>
+        </div>
+        <div class="col-sm-6">
+          <div class="well">
+            <h2>Я уже зарегистрирован</h2>
+            <p><strong>Авторизация</strong></p>
+            <form action="" method="post" enctype="multipart/form-data">
+              <div class="form-group">
+                <label class="control-label" for="input-email">E-Mail:</label>
+                <input type="text" name="email" value="" placeholder="E-Mail:" id="input-email" class="form-control">
+              </div>
+              <div class="form-group">
+                <label class="control-label" for="input-password">Пароль:</label>
+                <input type="password" name="password" value="" placeholder="Пароль:" id="input-password" class="form-control">
+                <a href="/forgot-password">Забыли пароль?</a></div>
+              <input type="submit" value="Войти" class="btn btn-primary">
+            </form>
+          </div>
+        </div>
+      </div>
+      </div>
+{%endblock%}

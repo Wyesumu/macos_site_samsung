@@ -1,0 +1,118 @@
+{% extends 'account.html' %}
+
+  {%block bread%}
+  <ul class="breadcrumb">
+    <li><a href="/"><i class="fa fa-home"></i></a></li>
+    <li><a href="/wishlist">Избранное</a></li>
+  </ul>
+  {%endblock%}
+{%block account_content%}
+  <div id="content" class="col-sm-9">      <h2>Мои закладки</h2>
+    {%if cabinet.user().favorites%}
+            <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <td class="text-center">Изображение</td>
+              <td class="text-left">Наименование товара</td>
+              <td class="text-left">Модель</td>
+              <td class="text-right">На складе</td>
+              <td class="text-right">Цена</td>
+              <td class="text-right">Действие</td>
+            </tr>
+          </thead>
+          <tbody>
+            {%for good in cabinet.user().favorites%}
+            <tr id='good_{{good.id}}' data-name='{{good.name}}' data-href='{{good.url}}'>
+              <td class="text-center">
+                {%if good.images%}
+                <img id='img_{{good.id}}' id="good_image" itemprop="image" class="product-image-zoom" src="{{config['THUMBNAIL_FOLDER']}}/{{good.images[0].file_name}}" title="{{good.name}}">
+                {%endif%}
+                </td>
+              <td class="text-left">
+                <a href="{{good.url}}">{{good.name}}</a>
+              </td>
+              <td class="text-left">{{good.model}}</td>
+              <td class="text-right">{%if good.in_stock%}В наличии{%else%}Нет в наличии{%endif%}</td>
+              <td class="text-right">
+                <div class="price">
+                  {%if good.sales%}
+                  <b>{{'{0:,}'.format((good.price - (good.price * good.sales[0].sale)/100) | int).replace(',',' ')}} грн.</b>   
+                  <s>
+                      {{'{0:,}'.format(good.price).replace(',',' ')}} грн.
+                  </s>
+                  {%else%}
+                  <b>
+                      {{'{0:,}'.format(good.price).replace(',',' ')}} грн.
+                  </b>
+                  {%endif%}
+                </div>
+                </td>
+              <td class="text-right">
+                <button type="button" onclick="AddToCart({{good.id}})" data-toggle="tooltip" title="" class="btn btn-primary" data-original-title="Купить"><i class="fa fa-shopping-cart"></i>
+                </button>
+                <a href="/remove_wishlist?id={{good.id}}" data-toggle="tooltip" title="" class="btn btn-danger" data-original-title="Удалить"><i class="fa fa-times"></i></a></td>
+            </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+      </div>
+      {%else%}
+        <p>Ваши закладки пусты</p>
+      {%endif%}
+
+            <div class="buttons clearfix">
+        <div class="pull-right"><a href="/my-account" class="btn btn-primary">Продолжить</a></div>
+      </div>
+      </div>
+  <div id="jGrowl" class="top-right jGrowl">
+  <div class="jGrowl-notification"></div>
+  <div id="added-to-cart-popup" class="jGrowl-notification alert ui-state-highlight ui-corner-all success" style="display: none;">
+    <button class="jGrowl-close" onclick="$('#added-to-cart-popup').css({'display':'none'})">×</button>
+    <div class="jGrowl-header">Товар добавлен в корзину</div>
+    <div class="jGrowl-message">
+      <img id="pop_up_img" src="https://macos.in.ua/image/cache/catalog/airpods_2-74x74.jpg" alt="">
+      <h3>
+        <a id="pop_up_link" href=""></a> добавлен в <a href="https://macos.in.ua/cart/">корзину</a>!
+      </h3>
+    </div>
+  </div>
+</div>
+      <script type="text/javascript">
+        function AddToCart(good_id) {
+        var data = {'good_id':good_id, 'amount':1};
+
+        $('#pop_up_img').attr({'src':$('#img_'+good_id).attr('src')})
+        $('#pop_up_link').text($('#good_'+good_id).data('name'))
+        $('#pop_up_link').attr({'href':$('#good_'+good_id).data('href')})
+
+        $('#added-to-cart-popup').css({'display':'block'})
+
+        setTimeout(function(){
+            $('#added-to-cart-popup').fadeOut();
+        }, 2000);
+
+        $.ajax({
+            type : "POST",
+            url : "{{ url_for('add_good_cart')}}",
+            data: JSON.stringify(data, null, '\t'),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+              console.log(result);
+              result = JSON.parse(result);
+              $("#total_cart_goods").text(result.good_amount);
+              $('#cart_container').empty()
+              let cart = result['cart']
+              let element = ''
+              for (i in cart){
+                let good = cart[i]
+                let html = '<tr><td class="text-center size-img-cart"><a href="'+good['model']['url']+'"><img src="'+good['model']['img']+'" alt="'+good['model']['name']+'"></a></td><td class="text-left"><a class="cart_product_name" href="'+good['model']['url']+'">'+good['model']['name']+'</a></td><td class="text-center">x '+good['amount']+'</td><td class="text-center">'+good['price']+' грн.</td><td class="text-right"><form action="/pop_cart_good?id='+good['good_id']+'&backurl={{request.path[1:]}}" method="POST"><label><input type="submit" style="display: none;" /><div style="cursor: pointer;" class="fa fa-trash-o"></div></label></form></td></tr>'
+                element = element + html;
+              }
+              $('#cart_container').html(element);
+            }
+        });
+        return false;
+    };
+      </script>
+{%endblock%}

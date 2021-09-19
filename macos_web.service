@@ -1,0 +1,12 @@
+[Unit]
+Description=Gunicorn instance to serve macos website
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/root/macos
+Environment="PATH=/root/macos/env/bin"
+ExecStart=/root/macos/env/bin/gunicorn --workers 6 --bind 127.0.0.1:56974 -m 007 wsgi:app
+#ExecStart=/root/macos/env/bin/flask run -p 56974
+[Install]
+WantedBy=multi-user.target

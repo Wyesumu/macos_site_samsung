@@ -1,0 +1,123 @@
+{% extends 'layout.html' %}
+{%block content%}
+
+<div class="container">
+  <ul class="breadcrumb">
+        <li><a href="/"><i class="fa fa-home"></i></a></li>
+        <li><a href="/cart">Корзина покупок</a></li>
+      </ul>
+      {% if cart.__repr__() %}
+        <div class="row">                <div id="content" class="col-sm-12">      <h1>Корзина покупок
+              </h1>
+      
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <td class="text-center">Изображение</td>
+                <td class="text-left">Наименование товара</td>
+                <td class="text-left">Модель</td>
+                <td class="text-left">Кол-во</td>
+                <td class="text-right">Цена за шт.</td>
+                <td class="text-right">Всего</td>
+              </tr>
+            </thead>
+            <tbody>
+              {%for good in cart.__repr__()%}
+              <tr>
+                <td class="text-center"> 
+                  <a href="/catalog/{{good['good'].url}}">
+                    {% if good['good'].images %}
+                      <img src="{{config['THUMBNAIL_FOLDER']}}/{{good['good'].images[0].file_name}}" alt="{{good['good'].name}}" style="height: 74px" class="img-thumbnail">
+                    {%endif%}
+                  </a>
+                  </td>
+                <td class="text-left"><a href="/catalog/{{good['good'].url}}">{{good['good'].name}}</a>
+                                                                        </td>
+                <td class="text-left">{{good['good'].model}}</td>
+                <td class="text-left">
+                  <div class="input-group btn-block" style="max-width: 200px;">
+                    <input type="number" id="count" step='1' min='1' data-id="{{good['good'].id}}" value="{{good['amount']}}" size="1" class="form-control">
+                    <span class="input-group-btn">
+                    <form action="/pop_cart_good?id={{good['good'].id}}&backurl=cart" method="POST">
+                      <button type="submit" class="btn btn-danger" data-original-title="Удалить"><i class="fa fa-times-circle"></i></button>
+                    </form>
+                    </span>
+                  
+                  </div></td>
+                <td class="text-right">
+                {%if good['good'].sales%}
+                <span class="price-new">{{'{0:,}'.format((good['good'].price - (good['good'].price * good['good'].sales[0].sale)/100) | int).replace(',',' ')}} грн.</span>   
+                <span class="price-old" style="text-decoration: line-through;">
+                    {{'{0:,}'.format(good['good'].price).replace(',',' ')}} грн.
+                </span>
+                {%else%}
+                <span class="price-new">
+                    {{'{0:,}'.format(good['good'].price).replace(',',' ')}} грн.
+                </span>
+                {%endif%}
+              </td>
+                <td class="text-right" id="price_{{good['good'].id}}">{{'{0:,}'.format(good['price']).replace(',',' ')}} грн.</td>
+              </tr>
+              {%endfor%}
+            </tbody>
+          </table>
+        </div>
+            <br>
+      <div class="row">
+        <div class="col-sm-4 col-sm-offset-8">
+          <table class="table table-bordered">
+            <tbody>
+            <tr>
+              <td class="text-right"><strong>Итого:</strong></td>
+              <td class="text-right" id="summ">{{'{0:,}'.format(summ).replace(',',' ')}} грн.</td>
+            </tr>
+                      </tbody></table>
+        </div>
+      </div>
+      <div class="buttons clearfix">
+        <div class="pull-left"><a href="/" class="btn btn-default">Продолжить покупки</a></div>
+          <div class="pull-right mobile-full-width"><a href="/simplecheckout" class="btn btn-primary">Оформление заказа</a></div>
+      </div>
+      </div>
+    </div>
+    {%else%}
+    <h1>Корзина пуста</h1>
+    {%endif%}
+</div>
+<style type="text/css">
+  @media(max-width: 644px){
+    .mobile-full-width{
+      width: 100%
+    }
+  }
+</style>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $(document).on("change", "#count", function (){
+            var good_id = $(this).data('id');
+            updateInCart(good_id, $(this).val());
+        });
+    })
+
+    function updateInCart(good_id, good_amount) {
+        console.log(good_amount)
+        var data = {'good_id': good_id, 'amount': good_amount};
+
+        $.ajax({
+            type : "POST",
+            url : "{{ url_for('update_good_cart')}}",
+            data: JSON.stringify(data, null, '\t'),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+                var result = JSON.parse(result);
+                console.log(result);
+                var good = result["updated_good"];
+                $('#price_'+good["good_id"]).text(parseInt(good["price"]).toLocaleString() + ' грн.');
+                $('#summ').text(parseInt(result["summ"]).toLocaleString() + ' грн.');
+            }
+        });
+    };
+</script>
+
+{%endblock%}
