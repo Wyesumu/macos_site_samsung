@@ -453,6 +453,7 @@
 							</div>
 							
 						  <div class="button-group">
+                            <button class="addToCart" style="width:100%;margin-bottom: 10px!important;" type="button" data-toggle="tooltip" title="Нашли дешевле?" onclick="Cheaper({{good.id}})"><span>Нашли дешевле?</span></button>
 							<button class="addToCart font-sn" type="button" data-toggle="tooltip" title="" onclick="AddToCart({{good.id}})" data-original-title="Купить"> <span>Купить</span></button>
 							<button class="wishlist btn-button" type="button" data-toggle="tooltip" title="" onclick="AddToWishlist({{good.id}});" data-original-title="В закладки"><i class="fa fa-heart-o"></i></button>
 							<button class="compare btn-button" type="button" data-toggle="tooltip" title="" onclick="AddToCompare({{good.id}});" data-original-title="В сравнение"><i class="fa fa-retweet"></i></button>
@@ -557,6 +558,7 @@
                                     {%endif%}
                                 </div>
                                 <div class="button-group" style="opacity: 1;">
+                                    <button class="addToCart" style="width:100%;margin-bottom: 10px!important;" type="button" data-toggle="tooltip" title="Нашли дешевле?" onclick="Cheaper({{good.id}})"><span>Нашли дешевле?</span></button>
                                     <button class="addToCart" type="button" data-toggle="tooltip" title="Купить" onclick="AddToCart({{good.id}})"><span>Купить</span></button>
                                     <button class="wishlist btn-button" type="button" data-toggle="tooltip" title="В закладки" onclick="AddToWishlist({{good.id}});"><i class="fa fa-heart-o"></i></button>
                                     <small style="transition: bottom 0.2s ease-in-out; cursor: pointer;position:relative;visibility: visible;top: 10px;" onclick='window.quick_buy_good = {{good.id}}; $("#quick_buy").modal("show");'>Купить в один клик</small>

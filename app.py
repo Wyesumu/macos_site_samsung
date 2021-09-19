@@ -128,7 +128,7 @@ class Good(db.Model):
 	model = db.Column(db.String())
 	url = db.Column(db.String(), nullable=False)
 	details = db.Column(db.String())
-	price = db.Column(db.Integer, nullable=False)
+	price_w = db.Column(db.Integer, nullable=False)
 	price_wo = db.Column(db.Integer, nullable=True)
 	images = db.relationship('Image', backref='good', lazy=True)
 	cat_id = db.Column(db.Integer, db.ForeignKey('category.id'))
@@ -141,6 +141,14 @@ class Good(db.Model):
 	reviews = db.relationship('Review', backref='good', lazy=True)
 	sales = db.relationship('Sale', backref='good', lazy=True)
 	top_goods = db.relationship('Top_good', backref='good', lazy=True)
+
+	@hybrid_property
+	def price(self):
+		if self:
+			if self.price_wo and flask.has_request_context() and Cabinet.get():
+				return self.price_wo
+			else:
+				return self.price_w
 
 	@hybrid_property
 	def avg_rating(self):
@@ -312,6 +320,19 @@ class User(db.Model):
 	def __repr__(self):
 		return self.name
 
+class FoundCheaper(db.Model):
+	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+	good_id=db.Column(db.Integer, db.ForeignKey('good.id'),
+		nullable=False)
+	name=db.Column(db.String())
+	telephone=db.Column(db.String())
+	link=db.Column(db.String())
+	price=db.Column(db.String())
+	comment=db.Column(db.String())
+
+	def __repr__(self):
+		return 'Сообщение от' + self.name
+
 class Contact_us(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	name = db.Column(db.String())
@@ -473,9 +494,9 @@ class GoodView(ModelView): #goods
 	form_excluded_columns = ('orders')
 	column_exclude_list = ('details', 'specs', 'page_specs')
 
-	column_labels = dict(name='Наименование', url='Url', details='Описание', price='Цена', images='Изображения', date='Дата выхода', manufacture='Производитель', in_stock='В наличии', category = 'Категория', model = 'Модель', by_request='Под заказ')
+	column_labels = dict(name='Наименование', url='Url', details='Описание', price_w='Цена', price_wo='Цена для зарег.', images='Изображения', date='Дата выхода', manufacture='Производитель', in_stock='В наличии', category = 'Категория', model = 'Модель', by_request='Под заказ')
 
-	form_columns = ('images', 'temp_field', 'category', 'name', 'url', 'date', 'details', 'in_stock', 'by_request', 'manufacture', 'price', 'model')
+	form_columns = ('images', 'temp_field', 'category', 'name', 'url', 'date', 'details', 'in_stock', 'by_request', 'manufacture', 'price_w', 'price_wo', 'model')
 
 	def is_accessible(self):
 		if not basic_auth.authenticate():
@@ -566,6 +587,7 @@ admin.add_view(DefView(Manufacture, db.session, 'Производитель', ur
 admin.add_view(ReviewView(Review, db.session, 'Отзывы', url='/admin/reviews', category='Товары'))
 admin.add_view(DefView(Top_good, db.session, 'Хиты продаж', url='/admin/top_goods', category='Товары'))
 admin.add_view(GoodView(Good, db.session, 'Товары', url='/admin/goods', category='Товары'))
+admin.add_view(DefView(FoundCheaper, db.session, 'Нашли дешевле', url='/admin/found_cheaper', category='Дополнительно'))
 admin.add_view(DefView(Contact_us, db.session, 'Связаться с нами', url='/admin/contact_us', category='Дополнительно'))
 #---------------------/flask_admin/---------------------
 
@@ -1454,6 +1476,33 @@ def contact_us():
 		pages=InfoPage.query.all(),
 		settings = Setting.get_settings(),
 		cart = Cart)
+
+
+@app.route('/found_cheaper', methods=['POST'])
+def found_cheaper():
+	if flask.request.method == 'POST':
+		print(flask.request.form)
+		good_id = flask.request.form.get('good_id', None)
+		if captcha.validate():
+			if flask.request.form.get('name', '') == '' or flask.request.form.get('telephone', '') == '' or flask.request.form.get('link', '') == '' or not good_id:
+				flask.flash('Не все поля заполнены. Попробуйте снова')
+				return flask.redirect(flask.url_for('index'))
+			else:
+				new_message = FoundCheaper(
+					good_id=int(good_id),
+					name=flask.request.form.get('name', ''), 
+					telephone=flask.request.form.get('telephone', ''), 
+					link=flask.request.form.get('link', ''),
+					price=flask.request.form.get('price', ''),
+					comment=flask.request.form.get('comment', ''))
+				db.session.add(new_message)
+				db.session.commit()
+				flask.flash('Спасибо! Ваше сообщение принято')
+				return flask.redirect(flask.url_for('index'))
+		else:
+			flask.flash('Код введен неверно. Попробуйте снова')
+			return flask.redirect(flask.url_for('index'))
+	return flask.redirect(flask.url_for('index'))
 
 if __name__ == "__main__":
 	app.run(host=config.host, port=config.port)#, ssl_context='adhoc')

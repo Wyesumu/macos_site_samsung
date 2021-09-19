@@ -56,7 +56,7 @@
 <script src="/static/catalog/view/javascript/so_page_builder/js/video_background.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-
+<script src="https://kit.fontawesome.com/d7ee203ef3.js" crossorigin="anonymous"></script>
 <!--<script src="/static/catalog/view/javascript/so_megamenu/so_megamenu.js"></script>-->
 
  <link href='/static/fonts/cssda6f.css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'> 	
@@ -87,6 +87,105 @@
 {
     opacity:0.5 !important;
 }
+
+body {
+  min-height: 100vh;
+}
+
+
+menu {
+  --size: 2.5rem;
+    --radius: 6rem;
+    --padding: 25px;
+    --bg-color: rgba(255, 255, 255, 0.9);
+    --fg-color: rgba(0, 0, 0, 0.7);
+    --hi-color: #808080;
+    z-index: 1000;
+    position: fixed;
+    bottom: calc(3 * var(--padding));
+    right: var(--padding);
+}
+
+menu > * {
+  position: absolute;
+  
+  display: grid;
+  place-content: center;
+  
+  border-radius: 50%;
+  
+  background: var(--bg-color);
+  color: var(--fg-color);
+  
+  text-decoration: none;
+  
+  box-shadow: 0px 0px 9px 0px rgba(0, 0, 0, 0.6);
+}
+
+menu > .action {
+  --factor: 0;
+  
+  width: var(--size);
+  height: var(--size);
+  right: calc(0.35 * var(--size));
+  bottom: calc(0.35 * var(--size));
+  
+  opacity: 0;
+  
+  transform: rotate(calc(-1 * var(--angle))) translateY(calc(-1 * var(--radius) * var(--factor))) rotate(var(--angle));
+  
+  transition: transform 250ms ease-in-out, opacity 250ms ease-in-out, box-shadow 250ms ease-in-out, color 250ms ease-in-out;
+}
+
+menu > .action:hover, menu > .trigger:hover {
+  color: var(--hi-color);
+  box-shadow: 0px 0px 0px 0.35rem rgba(0, 0, 0, 0.2);
+}
+
+menu.open > .action {
+  --factor: 1;
+  
+  opacity: 1;
+}
+
+menu > .action:nth-child(1) {
+  --angle: 0deg;
+  transition-delay: 0ms;
+}
+
+menu > .action:nth-child(2) {
+  --angle: 30deg;
+  transition-delay: 50ms;
+}
+
+menu > .action:nth-child(3) {
+  --angle: 60deg;
+  transition-delay: 100ms;
+}
+
+menu > .action:nth-child(4) {
+  --angle: 90deg;
+  transition-delay: 150ms;
+}
+
+menu > .trigger {
+  width: calc(1.6 * var(--size));
+  height: calc(1.6 * var(--size));
+  bottom: 0;
+  right: 0;
+  
+  font-size: var(--size);
+  transition: box-shadow 250ms ease-in-out, color 250ms ease-in-out;
+}
+
+menu > .trigger > i {
+  transition: transform 250ms ease-in-out;
+}
+
+menu.open > .trigger > i {
+  transform: rotate(-135deg);
+}
+
 
 
 	</style>
@@ -431,6 +530,81 @@
 
 	{%block content%} {%endblock%}
 
+	<menu>
+		<a href="tel:{{settings['phone']}}" class="action"><i class="fas fa-phone"></i></a>
+		<a href="{{settings['viber']}}" class="action"><i class="fab fa-viber"></i></a>
+		<a href="{{settings['telegram']}}" class="action"><i class="fab fa-telegram"></i></a>
+		<a href="{{settings['instagram']}}" class="action"><i class="fab fa-instagram"></i></a>
+		<a href="#" class="trigger"><i class="fas fa-plus"></i></a>
+	</menu>
+
+<div class="modal" id="cheaper_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Нашли дешевле?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+	  <form action="/found_cheaper" method="POST">
+      <div class="modal-body">
+	  	<p>
+		  Мы хотим быть уверены, что при совершении покупок в нашем магазине Вы получаете самые лучшие цены. Если Вы найдете цену ниже,чем у нас , пришлите нам ссылку на этот товар в другом магазине. В этом случае мы постараемся предложить Вам более выгодную цену.
+		  </p>
+        	<input type="hidden" name="good_id" id="good_id">
+			<fieldset class="form-horizontal">
+      			<div class="form-group required row-customer_firstname">
+    				<label class="control-label col-sm-4" for="customer_firstname">Фамилия Имя Отчество </label>
+    				<div class="col-sm-8">
+              			<input class="form-control" type="text" name="name" id="customer_firstname" value="{{cabinet.user().name}}" placeholder="" data-reload-payment-form="true">
+						<div class="simplecheckout-rule-group" data-for="customer_firstname">
+							<div style="display:none;" data-for="customer_firstname" data-rule="byLength" class="simplecheckout-error-text simplecheckout-rule" data-length-min="1" data-length-max="40" data-required="true">Имя должно быть от 1 до 40 символов!</div>
+						</div>
+					</div>
+ 				</div>
+				<div class="form-group required row-customer_telephone">
+    				<label class="control-label col-sm-4" for="customer_telephone">Телефон</label>
+					<div class="col-sm-8">
+              			<input class="form-control" type="tel" name="telephone" id="customer_telephone" value="{{cabinet.user().phone}}" placeholder="" data-mask="+38 (999) 999-99-99" data-reload-payment-form="true">
+					</div>
+				</div>
+				<div class="form-group required">
+    				<label class="control-label col-sm-4" for="link">Ссылка на магазин дешевле</label>
+					<div class="col-sm-8">
+              			<input class="form-control" type="text" name="link" id="link"  placeholder="">
+					</div>
+				</div>
+				<div class="form-group required">
+    				<label class="control-label col-sm-4" for="price">Цена</label>
+					<div class="col-sm-8">
+              			<input class="form-control" type="text" name="price" id="price"  placeholder="">
+					</div>
+				</div>
+				<div class="form-group required">
+    				<label class="control-label col-sm-4" for="comment">Комментарий</label>
+					<div class="col-sm-8">
+              			<input class="form-control" type="text" name="comment" id="comment"  placeholder="">
+					</div>
+				</div>
+				<div class="form-group required">
+    				<label class="control-label col-sm-4" for="comment">
+						{{captcha()}}
+					</label>
+					<div class="col-sm-8">
+              			<input type="text" name="captcha" id="input-captcha" class="form-control" placeholder="Введите код*">
+					</div>
+				</div>
+			</fieldset>
+	  </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Подтвердить</button>
+      </div>
+	  </form>
+    </div>
+  </div>
+</div>
 
 <footer class="footer-container typefooter-1">
 	<!-- FOOTER TOP -->
@@ -611,6 +785,18 @@
 	        });
 		}
 	})
+</script>
+<script>
+	const trigger = document.querySelector("menu > .trigger");
+trigger.addEventListener('click', (e) => {
+  e.currentTarget.parentElement.classList.toggle("open");
+});
+</script>
+<script>
+function Cheaper(g_id){
+	$('#cheaper_modal').find('#good_id').val(g_id);
+	$('#cheaper_modal').modal('show');
+}
 </script>
 {%block script%} {%endblock%}
 </body>
