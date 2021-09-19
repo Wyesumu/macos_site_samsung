@@ -129,6 +129,7 @@ class Good(db.Model):
 	url = db.Column(db.String(), nullable=False)
 	details = db.Column(db.String())
 	price = db.Column(db.Integer, nullable=False)
+	price_wo = db.Column(db.Integer, nullable=True)
 	images = db.relationship('Image', backref='good', lazy=True)
 	cat_id = db.Column(db.Integer, db.ForeignKey('category.id'))
 	in_stock = db.Column(db.Boolean(), default=True)
