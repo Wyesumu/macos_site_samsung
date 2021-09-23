@@ -1699,7 +1699,7 @@ jQuery(document).ready(function ($) {
             modelName: 'Address',
             calledMethod: 'getAreas',
             methodProperties: {},
-            apiKey: '32e9a9aae233998d04321bbe39b7e0c5'
+            apiKey: '{{ settings['novaposhta_token'] }}'
           }),
           headers: {
             'Content-Type': 'application/json'
@@ -1730,7 +1730,7 @@ jQuery(document).ready(function ($) {
               AreaRef: $('#shipping_address_country_id').val()
             },
 
-            apiKey: '32e9a9aae233998d04321bbe39b7e0c5'
+            apiKey: '{{ settings['novaposhta_token'] }}'
           }),
           headers: {
             'Content-Type': 'application/json'
@@ -1763,7 +1763,7 @@ jQuery(document).ready(function ($) {
               CityRef: $('#shipping_address_city').val()
             },
 
-            apiKey: '32e9a9aae233998d04321bbe39b7e0c5'
+            apiKey: '{{ settings['novaposhta_token'] }}'
           }),
           headers: {
             'Content-Type': 'application/json'
