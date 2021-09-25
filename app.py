@@ -770,22 +770,27 @@ class Cart():
 					text = """\
 					Новый заказ на сайте %s:
 					Товары: %s
-					<br>
+					\n
 					Сумма: %d
-					<br>
+					\n
 					ФИО: %s
-					<br>
+					\n
 					Телефон: %s
-					<br>
+					\n
 					Город: %s
-					<br>
+					\n
 					Отделение: %s
-					<br>
+					\n
 					Способ оплаты: %s
-					<br>
+					\n
 					Комментарий: %s
-					<br>
+					\n
 					Ссылка: %s"""%(flask.request.host,', '.join(good_names), summ, f['firstname'][0], f['telephone'][0], f['shipping_address_city'][0], f['shipping_address'][0], method, comment, 'appstore.in.ua/admin/orders/edit/?id='+str(order_id))
+
+					import requests
+					bot_token = Setting.query.filter_by(name = 'bot_token').first().value
+					user_id = Setting.query.filter_by(name = 'user_id').first().value
+					requests.post(url=f'https://api.telegram.org/bot{bot_token}/sendMessage', data= {'chat_id': user_id,'text': text})
 
 					html = """\
 					<html>
