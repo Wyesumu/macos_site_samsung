@@ -1488,7 +1488,7 @@ def found_cheaper():
 	if flask.request.method == 'POST':
 		print(flask.request.form)
 		good_id = flask.request.form.get('good_id', None)
-		if captcha.validate():
+		if True:#captcha.validate():
 			if flask.request.form.get('name', '') == '' or flask.request.form.get('telephone', '') == '' or flask.request.form.get('link', '') == '' or not good_id:
 				flask.flash('Не все поля заполнены. Попробуйте снова')
 				return flask.redirect(flask.url_for('index'))
